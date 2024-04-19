@@ -1,0 +1,50 @@
+---
+- hosts: p4switches
+  vars:
+    os_environment:
+        - key: SDE
+          value : /opt/p4-sde/bf-sde-9.13.2
+        - key: SDE_INSTALL
+          value : /opt/p4-sde/bf-sde-9.13.2/install
+    new_path: "/opt/p4-sde/bf-sde-9.13.2/install/bin"
+
+  tasks:
+    # add SDE environment variable as system wide configuration
+    - name: populate /etc/environment
+      become: yes
+      lineinfile:
+        path: "/etc/environment"
+        state: present
+        regexp: "^{{ item.key }}="
+        line: "{{ item.key }}={{ item.value}}"
+      with_items: "{{ os_environment }}"
+
+    - name: Debug
+      debug:
+        msg: "{{ ansible_env.PATH }}"
+        
+    - name: "Add {{ new_path }} to PATH if not exists"
+      become: true
+      ansible.builtin.replace:
+        debug: msg="PATH={{ ansible_env.PATH }}:{{ new_path }}"
+        path: /etc/environment
+        regexp: '^PATH="{{ ansible_env.PATH }}"'
+        replace: 'PATH="{{ ansible_env.PATH }}:{{ new_path }}"'
+      when: "new_path not in ansible_env.PATH"
+
+    # add few useful shortcuts
+    - name: Add sde and switchp4sde aliases
+      become: yes
+      ansible.builtin.copy:
+        dest: /etc/profile.d/00-aliases.sh
+        content: |
+          alias sde='cd $SDE'
+          alias switchp4='sde && ./run_switchd.sh -p switch'
+        mode: "0644"
+
+    - name: Add 'p4' symlink to /opt/p4-sde/bf-sde-9.13.2/run_switchd.sh
+      become: yes
+      ansible.builtin.file:
+        src: /opt/p4-sde/bf-sde-9.13.2/run_switchd.sh
+        dest: /usr/local/bin/p4
+        state: link
