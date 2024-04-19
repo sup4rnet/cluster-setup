@@ -1,5 +1,7 @@
 ---
 - hosts: p4switches
+  
+  # p4 switch variables
   vars:
     os_environment:
         - key: SDE
@@ -48,3 +50,15 @@
         src: /opt/p4-sde/bf-sde-9.13.2/run_switchd.sh
         dest: /usr/local/bin/p4
         state: link
+
+    # p4-restart user will not be prompted by any password for sudo ops
+    # => no need of -ask-become-password for ansible playbook execution
+    - name: Add sudoers for p4-restart user
+      become: yes
+      ansible.builtin.copy:
+        dest: /etc/sudoers.d/p4-restart
+        content: |
+          p4-restart ALL=(ALL) NOPASSWD: ALL
+        owner: root
+        group: root
+        mode: 0440
