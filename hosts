@@ -3,7 +3,7 @@ rest-bfsw01 ansible_host=192.168.24.69 ansible_user=p4-restart
 rest-bfsw02 ansible_host=192.168.24.70 ansible_user=p4-restart
 
 [servers]
-don't remembrer the IP address
+restsrv01 ansible_host=restsrv01.polito.it ansible_user=alessandro
 
 [all:vars]
 ansible_python_interpreter=/usr/bin/python3
