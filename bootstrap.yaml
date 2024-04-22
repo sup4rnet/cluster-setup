@@ -3,9 +3,9 @@
 
   tasks:
 
-    # - name: print
-    #   debug:
-    #     msg: "{{ user_groups }}"
+    - name: print
+      debug:
+        msg: "{{ users }}"
 
     # create users and add to groups
     - name: Create new user and add to p4 group

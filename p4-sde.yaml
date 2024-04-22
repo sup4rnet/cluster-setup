@@ -1,7 +1,7 @@
 # this script is used to configure the environment for Intel P4 studio
-# TODO: in the future also the SDE installation itself could be automatized
+
 ---
-- hosts: all
+- hosts: p4switches
 
   tasks:
     # add SDE environment variable as system wide configuration

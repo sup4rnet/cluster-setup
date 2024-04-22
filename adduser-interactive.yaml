@@ -1,0 +1,21 @@
+---
+- hosts: all
+
+  vars_prompt:
+    prompt: "Enter username"
+    name: username
+    private: false
+
+  tasks:
+
+    # create users and add to groups
+    - name: Create new user and add to p4 group
+      become: true
+      ansible.builtin.user:
+        name: "{{ username }}"
+        shell: /bin/bash
+        groups: "{{ user_groups }}"
+        append: yes
+        password: "{{ 'p4-restart' | password_hash('sha512', 'mysecretsalt') }}"
+        update_password: on_create
+        state: present
