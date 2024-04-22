@@ -17,3 +17,5 @@ ansible-playbook adduser-interactive.yaml -i hosts
 ```
 
 and you will be prompted for the username to add.
+
+*NOTE:* these scripts assume an ansible "admin" user is already installed on the targets (check `ansible_user` in `hosts` inventory file)
