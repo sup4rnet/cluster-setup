@@ -37,6 +37,7 @@
           alias switchp4='sde && ./run_switchd.sh -p switch'
           alias iftofinoup='sudo $SDE/bin/veth_setup.sh'
           alias iftofinodown='sudo $SDE_INSTALL/bin/veth_teardown.sh'
+          alias p4-build='sudo $SDE/../tools/p4_build.sh'
         mode: "0644"
 
     - name: Add 'p4' symlink to /opt/p4-sde/bf-sde-9.13.2/run_switchd.sh

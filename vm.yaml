@@ -1,0 +1,76 @@
+---
+- hosts: servers
+  become: yes
+
+  tasks:  
+
+    
+    # dependencies needed for xml module belo to run
+    # ----- TODO: maybe better to move in bootstrap
+    - name: Ensure pip is installed
+      apt:
+        name: python3-lxml
+        state: present
+    # -----
+
+    # install virtualization engine
+    - name: Install Libvirt
+      apt: 
+        name: libvirt-daemon-system 
+        state: present
+    
+    - name: Install QEMU
+      apt: 
+        name: qemu-system
+        state: present
+
+    - name: Install Bridge Utils
+      apt: 
+        name: bridge-utils
+        state: present
+      
+    - name: Start service libvirt
+      service:
+        name: libvirtd
+        state: started
+
+    - name: Add admin user to libvirt group
+      become: true
+      ansible.builtin.user:
+        name: "{{ admin_user }}"
+        groups: libvirt
+        append: yes
+        state: present
+
+    # VM configurations TODO (can be parametric)
+    - name: Define a new bridged network
+      community.libvirt.virt_net:
+        command: define
+        name: bridged-network
+        xml: '{{ lookup("file", "libvirt-network.xml") }}'
+
+    - name: Ensure network started
+      community.libvirt.virt_net:
+        name: bridged-network
+        state: active
+    
+    - name: Autostart network
+      community.libvirt.virt_net:
+        name: bridged-network
+        autostart: yes
+
+    # --------- definition of VM and auto-start -----------
+    # - name: Define VM
+    #   community.libvirt.virt:
+    #     command: define
+    #     xml: "{{ lookup('file', 'your-vm.xml') }}"
+    
+    # - name: Start VM
+    #   community.libvirt.virt:
+    #     name: your-vm
+    #     state: running
+    
+    # - name: set autostart for a VM
+    #   community.libvirt.virt:
+    #     name: your-vm
+    #     autostart: yes
