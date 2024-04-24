@@ -9,7 +9,7 @@ For access to VPN polito and creation of user account ask:
 
 ## User instructions
 ### Connect to VMs through SSH
-The VMs are not reachable from outside, and the DATAPLANE network 10.10.0.0/24 is also not reachable from the PoliTO network. 
+Users can connect to VMs through `ssh`. VMs are not directly visible on the PoliTO network, but are reachable by using `restsrv01` as a proxy.
 
 Connect via `ssh` using `restsrv01` as a jump proxy:
 
@@ -33,6 +33,12 @@ You can then connect by only typing:
 ```
 ssh restsrv01-smartdata01
 ```
+
+### Connectivity to P4 switches/other VMs for experiments
+
+All VMs are connected to the testbed DATAPLANE network `10.10.0.0/24` with a static IPs on this address space (i.e., every VM has a virtual interface "*bridged*" on the datapane network). 
+
+Also the P4 switch control-plane CPUs are connected to this network via the internal Ethernet ports between the CPU and the Tofino ASIC. Therefore, you can use the dataplane network to exchange traffic between the VMs and the Tofino control plane CPU. 
 
 ## Admin instructions
 A base VM image (qcow2 file) with default account `p4-restart` and Intel P4 Studio environment configured is available under `/opt/vms`.
