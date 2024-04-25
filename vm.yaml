@@ -7,9 +7,14 @@
     
     # dependencies needed for xml module belo to run
     # ----- TODO: maybe better to move in bootstrap
-    - name: Ensure pip is installed
+    - name: Install dependencies
       apt:
         name: python3-lxml
+        state: present
+
+    - name: Install libvirt plugin for local name resolution
+      apt:
+        name: libnss-libvirt
         state: present
     # -----
 

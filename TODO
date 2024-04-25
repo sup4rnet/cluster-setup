@@ -1,0 +1,13 @@
+VM AUTOMATION
+- edit /etc/nsswitch.conf adding libvirt in hosts line
+- netplan IP addresses integrated with ansible
+(can initially ssh with hostname and other IP addr -> need default
+hostname initially)
+- change hostname later via ansible
+- autostart
+- add hostname to /etc/hosts in the server
+- SDE install should also be automatic....
+- add ssh keys?
+- DHCP server ?
+
+
