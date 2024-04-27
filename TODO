@@ -1,12 +1,6 @@
 VM AUTOMATION
 
-
-- (can initially ssh with hostname and other IP addr -> need default
-hostname initially)
-- change hostname later via ansible (TODO ? MAYBE ALREADY DONE)
-
-- better vars management
-
+- check if P4 Studio is installed (or install otehrwise) in bootstrap role
 - DHCP server / netplan IP addresses integrated with ansible 
 
 

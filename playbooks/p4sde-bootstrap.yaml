@@ -1,33 +1,6 @@
----
-- hosts: all
-
-  tasks:
-
-    - name: print
-      debug:
-        msg: "{{ users }}"
-
-    # create users and add to groups
-    - name: Create new user and add to p4 group
-      become: true
-      ansible.builtin.user:
-        name: "{{ item }}"
-        shell: /bin/bash
-        groups: "{{ user_groups }}"
-        append: yes
-        password: "{{ 'p4-restart' | password_hash('sha512', 'mysecretsalt') }}"
-        update_password: on_create
-        state: present
-      with_items: "{{ users }}"
-
-    # p4-restart user will not be prompted by any password for sudo ops
-    # => no need of -ask-become-password for ansible playbook execution
-    - name: Add sudoers for p4-restart user
-      become: yes
-      ansible.builtin.copy:
-        dest: /etc/sudoers.d/{{ admin_user }}
-        content: |
-          {{ admin_user }} ALL=(ALL) NOPASSWD: ALL
-        owner: root
-        group: root
-        mode: 0440
+- name: Bootstrap VMs
+  hosts: vms
+  become: true
+  roles:
+    - ../roles/bootstrap
+    

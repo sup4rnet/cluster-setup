@@ -1,10 +1,3 @@
-# variables defined for p4swtiches group
 
-os_environment:
-    - key: SDE
-      value : /opt/p4-sde/bf-sde-9.13.2
-    - key: SDE_INSTALL
-      value : /opt/p4-sde/bf-sde-9.13.2/install
-new_path: "/opt/p4-sde/bf-sde-9.13.2/install/bin"
 admin_user: p4-restart
 user_groups: sudo, p4-restart

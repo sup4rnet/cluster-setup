@@ -1,12 +1,11 @@
 <domain type='kvm' id='1'>
   <name>{{ item.vm_name }}</name>
-  <uuid>09230840-4e87-4a1b-bee9-44ce804a6805</uuid>
   <metadata>
     <libosinfo:libosinfo xmlns:libosinfo="http://libosinfo.org/xmlns/libvirt/domain/1.0">
       <libosinfo:os id="http://ubuntu.com/ubuntu/20.04"/>
     </libosinfo:libosinfo>
   </metadata>
-  <memory unit='KiB'>{{ vm_ram_mb }}</memory>
+  <memory unit='MiB'>{{ vm_ram_mb }}</memory>
   <vcpu placement='static'>{{ vm_vcpus }}</vcpu>
   <resource>
     <partition>/machine</partition>

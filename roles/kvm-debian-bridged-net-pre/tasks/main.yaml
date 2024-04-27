@@ -1,37 +1,15 @@
-- name: Install dependencies
-  apt:
-    name: python3-lxml
-    state: present
-
-- name: Install libvirt plugin for local name resolution
-  apt:
-    name: libnss-libvirt
-    state: present
-    
-# tasks file for kvm_provision
 - name: Ensure requirements in place
   package:
     name:
       - libguestfs-tools
       - python3-libvirt
+      - python3-lxml
+      - libnss-libvirt
+      - libvirt-daemon-system
+      - qemu-system
+      - bridge-utils
     state: present
 
-# install virtualization engine
-- name: Install Libvirt
-  apt: 
-    name: libvirt-daemon-system 
-    state: present
-
-- name: Install QEMU
-  apt: 
-    name: qemu-system
-    state: present
-
-- name: Install Bridge Utils
-  apt: 
-    name: bridge-utils
-    state: present
-  
 - name: Start service libvirt
   service:
     name: libvirtd
@@ -44,10 +22,6 @@
     groups: libvirt
     append: yes
     state: present
-
-# TODO : use nmcli ansible module to create the bridge network br0
-#
-#
 
 - name: Add bridge connection
   ansible.builtin.nmcli:

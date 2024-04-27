@@ -22,3 +22,7 @@ vms:
         restsrv01-smartdata01:
             ansible_host: restsrv01-smartdata01
             ansible_user: p4-restart
+    vars:
+        ansible_ssh_common_args: '-o ProxyCommand="ssh alessandro@restsrv01.polito.it -W %h:%p"'
+
+    

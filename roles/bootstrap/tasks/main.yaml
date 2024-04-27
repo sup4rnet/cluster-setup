@@ -1,0 +1,69 @@
+
+- name: Debug
+  debug:
+    msg: "Hostname is {{ ansible_hostname }} , with ip {{ vm_dataplane_ipv4 }}"
+
+- name: Configure netplan static IP
+  ansible.builtin.template:
+    src: 01-netcfg.yaml.j2
+    dest: /etc/netplan/01-netcfg.yaml
+  notify:
+    - Apply netplan
+
+- name: Create {{ users }} and add to p4 group
+  ansible.builtin.user:
+    name: "{{ item }}"
+    shell: /bin/bash
+    groups: "{{ user_groups }}"
+    append: yes
+    password: "{{ 'p4-restart' | password_hash('sha512', 'mysecretsalt') }}"
+    update_password: on_create
+    state: present
+  with_items: "{{ users }}"
+
+- name: Set sudoers for admin_user
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/{{ admin_user }}
+    content: |
+      {{ admin_user }} ALL=(ALL) NOPASSWD: ALL
+    owner: root
+    group: root
+    mode: 0440
+    
+- name: populate /etc/environment
+  lineinfile:
+    path: "/etc/environment"
+    state: present
+    regexp: "^{{ item.key }}="
+    line: "{{ item.key }}={{ item.value}}"
+  with_items: "{{ os_environment }}"
+
+- name: Debug
+  debug:
+    msg: "{{ ansible_env.PATH }}"
+    
+- name: "Add {{ new_path }} to PATH if not exists"
+  become: true
+  ansible.builtin.replace:
+    path: /etc/environment
+    regexp: '^PATH="{{ ansible_env.PATH }}"'
+    replace: 'PATH="{{ ansible_env.PATH }}:{{ new_path }}"'
+  when: "new_path not in ansible_env.PATH"
+
+# add few useful shortcuts
+- name: Add sde and switchp4sde aliases
+  ansible.builtin.copy:
+    dest: /etc/profile.d/00-aliases.sh
+    content: |
+      alias sde='cd $SDE'
+      alias switchp4='sde && ./run_switchd.sh -p switch'
+      alias iftofinoup='sudo $SDE/bin/veth_setup.sh'
+      alias iftofinodown='sudo $SDE_INSTALL/bin/veth_teardown.sh'
+      alias p4-build='sudo $SDE/../tools/p4_build.sh'
+    mode: "0644"
+
+- name: Add 'p4' symlink to /opt/p4-sde/bf-sde-9.13.2/run_switchd.sh
+  ansible.builtin.file:
+    src: /opt/p4-sde/bf-sde-9.13.2/run_switchd.sh
+    dest: /usr/local/bin/p4
+    state: link
