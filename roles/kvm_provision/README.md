@@ -10,29 +10,37 @@ For access to VPN polito and creation of user account ask:
 ### Connect to VMs through SSH
 Users can connect to VMs through `ssh`. VMs are not directly visible on the PoliTO network, but are reachable by using `restsrv01` as a proxy.
 
-Connect via `ssh` using `restsrv01` as a jump proxy:
+You have two options to connect. 
+
+1) Connect via ssh to `restsrv01.polito.it`, and from there connect via ssh to your VM with the command
 
 ```
-ssh -J <your user>@restsrv01.polito.it <your user>@restsrv01-smartdata01
+ssh <your user>@<vm hostname>
+```
+
+2) Single-step `ssh` using `restsrv01.polito.it` as a jump proxy:
+
+```
+ssh -J <your user>@restsrv01.polito.it <your user>@<vm hostname>
 ```
 
 For typing convenience, you may want to add the following lines to your `.ssh/config` file. Replace:
 
-* `restsrv01-smartdata01` with a string you like
+* `<vm hostname>` with your VM's hostname (e.g., `restsrv01-smartdata01`).
 * `<VM user>` and `<proxy user>` with your username on the VM and on `restsrv01` (proxy server) respectively. Likely they are the same.
 
 ```
-Host restsrv01-smartdata01
+Host <vm hostname>
   User <VM user>
   ProxyCommand ssh <proxy user>@restsrv01.polito.it -W %h:%p
 ```
 
 You can then connect by only typing:
 ```
-ssh restsrv01-smartdata01
+ssh <vm hostname>
 ```
 
-**Note:** The name `restsrv01-smartdata01` is resolved locally at the proxy server thanks to `libvirt-nss` VM name resolution.
+**Note:** The name `<vm hostname>` is resolved locally at `restsrv01.polito.it` (thanks to `libvirt-nss` VM name resolution plugin), and cannot be resolved from other hosts outside `restsrv01.polito.it`.
 
 ### Connectivity to P4 switches/other VMs for experiments
 
