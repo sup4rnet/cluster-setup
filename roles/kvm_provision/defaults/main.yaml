@@ -1,0 +1,18 @@
+---
+# defaults file for kvm_provision
+base_image_name_no_extension: ubuntu20.04-p4-sde
+libvirt_pool_dir: "/var/lib/libvirt/images"
+vm_vcpus: 8
+vm_ram_mb: 8192
+vm_net: default
+vm_root_pass: p4-restart
+cleanup_tmp: no
+
+
+# ------- define here list of VMs and their dataplane IPs
+# NOTE: useless when DHCP server will be installed
+vms:
+  - vm_name: restsrv01-smartdata01
+    vm_dataplane_ip: 10.10.0.11/24
+
+#----------------------------------------------------

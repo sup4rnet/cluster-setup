@@ -1,0 +1,52 @@
+- block:
+
+    - name: Debug
+      debug:
+        msg: "Defining VM {{ item.vm_name }} with addresses {{ item.vm_dataplane_ip }}"
+      
+    - name: Copy base image to libvirt directory
+      copy:
+        dest: "{{ libvirt_pool_dir }}/{{ base_image_name_no_extension }}-{{ item.vm_name }}.qcow2"
+        src: "{{ libvirt_pool_dir }}/{{ base_image_name_no_extension }}.qcow2"
+        force: no
+        remote_src: yes
+        mode: 0660
+      register: copy_results
+
+    - name: Configure the image
+      command: |
+        virt-customize -a {{ libvirt_pool_dir }}/{{ base_image_name_no_extension }}-{{ item.vm_name }}.qcow2 \
+        --hostname {{ item.vm_name }} \
+        --root-password password:{{ vm_root_pass }}
+      when: copy_results is changed
+
+    # - name: Copy the coredump disk image
+    #   copy:
+    #     dest: "/data/{{ item.vm_name }}-coredump.qcow2"
+    #     src: "/data/sample-coredump.qcow2"
+    #     force: no
+    #     remote_src: yes
+    #     mode: 0660
+    #     owner: libvirt-qemu
+    #     group: libvirt-qemu
+
+    - name: Define vm
+      community.libvirt.virt:
+        command: define
+        xml: "{{ lookup('template', 'vm-p4-sde.xml.j2') }}"
+
+  when: "item.vm_name not in existing_vms"
+
+- name: Start VM
+  community.libvirt.virt:
+    name: "{{ item.vm_name }}"
+    state: running
+  register: vm_start_results
+  until: "vm_start_results is success"
+  retries: 15
+  delay: 2
+  
+- name: Ensure VM autostart
+  community.libvirt.virt:
+    name: "{{ item.vm_name }}"
+    autostart: yes

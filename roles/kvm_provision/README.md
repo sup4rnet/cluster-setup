@@ -87,6 +87,7 @@ For permanent configuration, we use `nmcli` tool in Debian 12. If you wish not t
 Run the following to create a bridge `br0` and add interface `ens5f0` to it.
 
 ```
+sudo nmcli con add type bridge ifname br0
 sudo nmcli con add type bridge-slave ifname ens5f0 master br0
 sudo nmcli con mod br0 ipv4.addresses 10.10.0.10/24
 sudo nmcli con mod bridge-br0 ipv4.gateway 10.10.0.1

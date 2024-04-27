@@ -1,0 +1,24 @@
+---
+# control-plane in the switches
+p4switches:
+    hosts:
+        rest-bfsw01:
+            ansible_host: rest-bfsw01.polito.it
+            ansible_user: p4-restart
+        rest-bfsw02:
+            ansible_host: rest-bfsw02.polito.it
+            ansible_user: p4-restart
+
+# physical servers hosting the VMs
+servers:
+    hosts:
+        restsrv01:
+            ansible_host: restsrv01.polito.it
+            ansible_user: alessandro
+
+# vms for configurations. They must be provisioned and started first!
+vms:
+    hosts:
+        restsrv01-smartdata01:
+            ansible_host: restsrv01-smartdata01
+            ansible_user: p4-restart

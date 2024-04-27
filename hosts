@@ -1,6 +1,0 @@
-[p4switches]
-rest-bfsw01 ansible_host=192.168.24.69 ansible_user=p4-restart
-rest-bfsw02 ansible_host=192.168.24.70 ansible_user=p4-restart
-
-[servers]
-restsrv01 ansible_host=restsrv01.polito.it ansible_user=alessandro

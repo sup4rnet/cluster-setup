@@ -1,0 +1,9 @@
+- name: Get VMs list
+  community.libvirt.virt:
+    command: list_vms
+  register: existing_vms
+  changed_when: no
+
+- name: Create VMs if not exists
+  ansible.builtin.include_tasks: ../roles/kvm_provision/tasks/libvirt-define.yaml
+  loop: "{{ vms }}"

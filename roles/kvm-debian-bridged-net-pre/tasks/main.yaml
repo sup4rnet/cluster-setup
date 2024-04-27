@@ -1,0 +1,93 @@
+- name: Install dependencies
+  apt:
+    name: python3-lxml
+    state: present
+
+- name: Install libvirt plugin for local name resolution
+  apt:
+    name: libnss-libvirt
+    state: present
+    
+# tasks file for kvm_provision
+- name: Ensure requirements in place
+  package:
+    name:
+      - libguestfs-tools
+      - python3-libvirt
+    state: present
+
+# install virtualization engine
+- name: Install Libvirt
+  apt: 
+    name: libvirt-daemon-system 
+    state: present
+
+- name: Install QEMU
+  apt: 
+    name: qemu-system
+    state: present
+
+- name: Install Bridge Utils
+  apt: 
+    name: bridge-utils
+    state: present
+  
+- name: Start service libvirt
+  service:
+    name: libvirtd
+    state: started
+
+- name: Add admin user to libvirt group
+  become: true
+  ansible.builtin.user:
+    name: "{{ admin_user }}"
+    groups: libvirt
+    append: yes
+    state: present
+
+# TODO : use nmcli ansible module to create the bridge network br0
+#
+#
+
+- name: Add bridge connection
+  ansible.builtin.nmcli:
+    conn_name: "{{ bridge_name }}"
+    ifname: "{{ bridge_name }}"
+    type: bridge
+    ip4: "{{ bridge_host_ip }}"
+    gw4: "{{ bridge_host_gw }}"
+    stp: false
+    state: present
+
+- name: Add bridge-slave connection
+  ansible.builtin.nmcli:
+    conn_name: bridge-slave-{{ bridge_host_iface }}
+    ifname: "{{ bridge_host_iface }}"
+    type: bridge-slave
+    hairpin: false
+    master: "{{ bridge_name }}"
+    state: present
+
+- name: Define a new bridged network
+  community.libvirt.virt_net:
+    command: define
+    name: bridged-network
+    xml: '{{ lookup("template", "libvirt-network.xml.j2") }}'
+
+- name: Ensure network started
+  community.libvirt.virt_net:
+    name: bridged-network
+    state: active
+
+- name: Autostart network
+  community.libvirt.virt_net:
+    name: bridged-network
+    autostart: yes
+
+- name: Configure libvirt VM name resolution
+  lineinfile:
+    path: /etc/nsswitch.conf
+    regexp: '^hosts:'
+    line: 'hosts:          files mdns4_minimal [NOTFOUND=return] libvirt dns myhostname mymachines'
+
+
