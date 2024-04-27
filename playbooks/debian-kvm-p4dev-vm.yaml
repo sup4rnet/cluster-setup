@@ -1,0 +1,6 @@
+- name: Provision KVM VMs - bridged on dataplane network
+  hosts: servers
+  become: true
+  roles:
+    - ../roles/kvm-debian-bridged-net-pre
+    - ../roles/kvm_provision
