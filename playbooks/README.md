@@ -4,6 +4,7 @@
 
 * SSH access with sudo permissions to physical servers and VM base image
 (name of user with `sudo` priviledges can be configured in Ansible variable `admin_user` under `group_vars`)
+* Ansible client installed (tested with v2.13.7) on your machine
 
 ## Ansible description
 The following Ansible targets are possible:
@@ -27,7 +28,7 @@ This role creates a new `libvirt` VM cloning a base VM with P4 development envir
 * Add your VM's IP address in the Ansible variable `vm_dataplane_ipv4: 10.10.0.11/24`.
 * Add the list of users to be created in the VM in the variable `users`.
 
-Run playbook:
+From your Ansible client run the playbook:
 ```
 ansible-playbook playbooks/debian-kvm-p4dev-vm.yaml -i inventory.yaml
 ```
@@ -36,8 +37,10 @@ ansible-playbook playbooks/debian-kvm-p4dev-vm.yaml -i inventory.yaml
 This role adds the new user and configures VM networking. 
 
 Add the hostname of the created VM to the Ansible inventory `inventory.yaml`. 
-Then execute the `p4dev-vm-bootstrap.yaml` role:
+Then run:
 
 ```
 ansible-playbook playbooks/p4dev-vm-bootstrap.yaml -i inventory.yaml -K
 ```
+
+The `-K` option is required only the first time you run the playbook to ask for `sudo` permissions.
