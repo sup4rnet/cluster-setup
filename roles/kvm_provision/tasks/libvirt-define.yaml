@@ -52,7 +52,7 @@
   retries: 15
   delay: 2
   
-- name: Ensure VM autostart
+- name: Ensure VM autostart at boot
   community.libvirt.virt:
     name: "{{ item.vm_name }}"
     autostart: yes
