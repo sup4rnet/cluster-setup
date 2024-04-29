@@ -6,5 +6,4 @@ vm_vcpus: 8
 vm_ram_mb: 8192
 vm_net: default
 vm_root_pass: p4-restart
-force_define: true
 cleanup_tmp: no

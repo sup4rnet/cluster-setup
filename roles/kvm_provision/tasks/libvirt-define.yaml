@@ -4,10 +4,11 @@
       debug:
         msg: "Defining VM {{ item.vm_name }}"
     
-    - name: Shutdown VM
-      community.libvirt.virt:
-        name: "{{ item.vm_name }}"
-        state: shutdown
+    # # TODO: implement when clause to check if VM is already defined
+    # - name: Shutdown VM
+    #   community.libvirt.virt:
+    #     name: "{{ item.vm_name }}"
+    #     state: shutdown
 
     - name: Workaround check file exist without checksumming
       stat: 
@@ -31,24 +32,16 @@
         virt-customize -a {{ libvirt_pool_dir }}/{{ base_image_name_no_extension }}-{{ item.vm_name }}.qcow2 \
         --hostname {{ item.vm_name }} \
         --root-password password:{{ vm_root_pass }}
+        --ssh-inject {{ item.vm_admin_user }}:file:/home/{{ ansible_user_id }}/.ssh/id_rsa.pub
+        --ssh-inject {{ item.vm_admin_user }}:file:/home/{{ ansible_user_id }}/.ssh/id_ed25519.pub
       when: copy_results is changed
-
-    # - name: Copy the coredump disk image
-    #   copy:
-    #     dest: "/data/{{ item.vm_name }}-coredump.qcow2"
-    #     src: "/data/sample-coredump.qcow2"
-    #     force: no
-    #     remote_src: yes
-    #     mode: 0660
-    #     owner: libvirt-qemu
-    #     group: libvirt-qemu
 
     - name: Define vm
       community.libvirt.virt:
         command: define
         xml: "{{ lookup('template', 'vm-p4-sde.xml.j2') }}"
 
-  when: "item.vm_name not in existing_vms or force_define"
+  when: "item.vm_name not in existing_vms or reconfigure_running_vms"
 
 - name: Start VM
   community.libvirt.virt:
