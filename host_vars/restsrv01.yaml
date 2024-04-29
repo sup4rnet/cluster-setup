@@ -1,3 +1,2 @@
 vms:
   - vm_name: restsrv01-smartdata01
-    vm_admin_user: p4-restart

@@ -33,7 +33,7 @@
         --hostname {{ item.vm_name }} \
         --root-password password:{{ vm_root_pass }}
         --ssh-inject {{ item.vm_admin_user }}:file:/home/{{ ansible_user_id }}/.ssh/id_rsa.pub
-        --ssh-inject {{ item.vm_admin_user }}:file:/home/{{ ansible_user_id }}/.ssh/id_ed25519.pub
+        --ssh-inject {{ vm_admin_user }}:file:/home/{{ ansible_user_id }}/.ssh/id_ed25519.pub
       when: copy_results is changed
 
     - name: Define vm

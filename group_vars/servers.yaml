@@ -1,10 +1,12 @@
 admin_user: alessandro
+vm_admin_user: p4-restart
 
 libvirt_bridged_net_name: bridged-network
 bridge_name: br0
 bridge_host_iface: ens5f0
 bridge_host_ip: 10.10.0.10/24
 bridge_host_gw: 10.10.0.1
+
   
 
     
