@@ -37,33 +37,34 @@
     regexp: "^{{ item.key }}="
     line: "{{ item.key }}={{ item.value}}"
   with_items: "{{ os_environment }}"
-
-- name: Debug
-  debug:
-    msg: "{{ ansible_env.PATH }}"
     
-- name: "Add {{ new_path }} to PATH if not exists"
-  become: true
-  ansible.builtin.replace:
-    path: /etc/environment
-    regexp: '^PATH="{{ ansible_env.PATH }}"'
-    replace: 'PATH="{{ ansible_env.PATH }}:{{ new_path }}"'
-  when: "new_path not in ansible_env.PATH"
+- name: "Add {{ sde_path }} to $PATH if not exists"
+  ansible.builtin.lineinfile:
+    path: /home/{{ item }}/.bashrc
+    state: present
+    line: 'export PATH="$PATH:{{ sde_path }}"'
+  with_items: "{{ users }}"
 
 # add few useful shortcuts
 - name: Add sde and switchp4sde aliases
   ansible.builtin.copy:
-    dest: /etc/profile.d/00-aliases.sh
+    dest: /home/{{ item }}/.bash_aliases
     content: |
       alias sde='cd $SDE'
       alias switchp4='sde && ./run_switchd.sh -p switch'
-      alias iftofinoup='sudo $SDE/bin/veth_setup.sh'
+      alias iftofinoup='sudo $SDE_INSTALL/bin/veth_setup.sh'
       alias iftofinodown='sudo $SDE_INSTALL/bin/veth_teardown.sh'
-      alias p4-build='sudo $SDE/../tools/p4_build.sh'
     mode: "0644"
+  with_items: "{{ users }}"
 
 - name: Add 'p4' symlink to /opt/p4-sde/bf-sde-9.13.2/run_switchd.sh
   ansible.builtin.file:
     src: /opt/p4-sde/bf-sde-9.13.2/run_switchd.sh
     dest: /usr/local/bin/p4
     state: link
+
+- name: Add p4-build utility
+  ansible.builtin.copy:
+    dest: "{{ sde_path }}/p4-build"
+    content: "{{ lookup('file', 'p4-build.sh') }}"
+    mode: "0775"

@@ -27,8 +27,9 @@ Internet connectivity to the VMs is provided through a second interface (NAT mod
 See [details here](./roles/kvm_provision/README.md).
 
 ### P4 development environment
-VMs are provisioned with Intel P4 Software Development Environment (version 9.13.2) installed under `/opt/p4-sde/bf-sde-9.13.2`. The following aliases are available:
+VMs are provisioned with Intel P4 Software Development Environment (version 9.13.2) installed under `/opt/p4-sde/bf-sde-9.13.2`. The following commands are available:
 
+* `p4-build`: convenience script to build P4 programs
 * `sde`: change directory to SDE directory
 * `p4`: alias for `/opt/p4-sde/bf-sde-9.13.2/run_switchd.sh` 
 * `iftofinoup`/`iftofinodown`: creates/destroys veth pairs to work with the Tofino Model
