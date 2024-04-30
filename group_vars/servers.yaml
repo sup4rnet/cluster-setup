@@ -1,4 +1,4 @@
-admin_user: alessandro
+# could be different from ansible_user in the server
 vm_admin_user: p4-restart
 
 libvirt_bridged_net_name: bridged-network

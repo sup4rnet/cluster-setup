@@ -1,3 +1,4 @@
 vm_dataplane_ipv4: 10.10.0.11/24
-users:
-  - zhihaow
+
+# who's the main guy for this vm
+admin_user: zhihaow

@@ -33,6 +33,8 @@ VMs are provisioned with Intel P4 Software Development Environment (version 9.13
 * `sde`: change directory to SDE directory
 * `p4`: alias for `/opt/p4-sde/bf-sde-9.13.2/run_switchd.sh` 
 * `iftofinoup`/`iftofinodown`: creates/destroys veth pairs to work with the Tofino Model
+* `tfm`: alias for `/opt/p4-sde/bf-sde-9.13.2/run_tofino_model.sh`
+* `switch-intel`: runs Intel Switch.p4, i.e., alias for `/opt/p4-sde/bf-sde-9.13.2/run_switchd.sh -p switch`
 
 ## VM installation with Ansible playbooks
 Admin users can create a new VM with two steps:

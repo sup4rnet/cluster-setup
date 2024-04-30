@@ -68,6 +68,13 @@ fi
 
 # get absolute path of prog.p4
 P4_PATH=`realpath ${1}`
+
+if [[ $? -ne 0 ]]; then
+  echo -e "Error: ${1} not found"
+  echo ""
+  help
+fi
+
 BUILD_OPTS="${BUILD_OPTS}-DP4_PATH=${P4_PATH} "
 
 # go into build directory

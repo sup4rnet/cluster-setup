@@ -1,7 +1,7 @@
 
 - name: Debug
   debug:
-    msg: "Hostname is {{ ansible_hostname }} , with ip {{ vm_dataplane_ipv4 }}"
+    msg: "Hostname is {{ ansible_hostname }} , with ip {{ vm_dataplane_ipv4 }}. Connected as {{ ansible_user }}"
 
 - name: Configure netplan static IP
   ansible.builtin.template:
@@ -21,11 +21,12 @@
     state: present
   with_items: "{{ users }}"
 
-- name: Set sudoers for admin_user
+
+- name: Set sudoers for ansible_user
   ansible.builtin.copy:
-    dest: /etc/sudoers.d/{{ admin_user }}
+    dest: /etc/sudoers.d/{{ ansible_user }}
     content: |
-      {{ admin_user }} ALL=(ALL) NOPASSWD: ALL
+      {{ ansible_user }} ALL=(ALL) NOPASSWD: ALL
     owner: root
     group: root
     mode: 0440
@@ -45,15 +46,23 @@
     line: 'export PATH="$PATH:{{ sde_path }}"'
   with_items: "{{ users }}"
 
+- name: Change ownership of {{ sde_path }} to {{ item }}
+  ansible.builtin.file:
+    path: "{{ sde_path }}"
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+    recurse: yes
+
 # add few useful shortcuts
 - name: Add sde and switchp4sde aliases
   ansible.builtin.copy:
     dest: /home/{{ item }}/.bash_aliases
     content: |
       alias sde='cd $SDE'
-      alias switchp4='sde && ./run_switchd.sh -p switch'
+      alias switch-intel='sde && ./run_switchd.sh -p switch'
       alias iftofinoup='sudo $SDE_INSTALL/bin/veth_setup.sh'
       alias iftofinodown='sudo $SDE_INSTALL/bin/veth_teardown.sh'
+      alias tfm="$SDE/run_tofino_model.sh"
     mode: "0644"
   with_items: "{{ users }}"
 

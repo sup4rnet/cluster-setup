@@ -1,7 +1,0 @@
-VM AUTOMATION
-
-- scrivere README documentation ragionevole
-- check if P4 Studio is installed (or install otehrwise) in bootstrap role
-- DHCP server / netplan IP addresses integrated with ansible 
-
-

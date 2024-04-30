@@ -1,3 +1,2 @@
 
-admin_user: p4-restart
 user_groups: sudo, p4-restart
