@@ -26,7 +26,7 @@ Internet connectivity to the VMs is provided through a second interface (NAT mod
 
 See [details here](./roles/kvm_provision/README.md).
 
-### P4 development environment
+### P4 development environment and utilities
 VMs are provisioned with Intel P4 Software Development Environment (version 9.13.2) installed under `/opt/p4-sde/bf-sde-9.13.2`. The following commands are available:
 
 * `p4-build`: convenience script to build P4 programs

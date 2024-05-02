@@ -1,2 +1,7 @@
 bridge_vm_guest_iface: enp7s0
+
+users:
+  - "{{ tenant_username }}"  # this will be VM specific
+  - "{{ ansible_user }}"
+
 user_groups: sudo, p4-restart
