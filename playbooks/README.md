@@ -1,20 +1,24 @@
-# SUPER P4 VM - Ansible automation
+# Ansible SUPER automation
 
-## Requirements
+Set of playbooks with (minimal) automation of the kick-off actions required to add new tenants to the cluster.
+
+## Overview
+
+### Requirements
 
 * Ansible client installed (tested with v2.13.7) on your machine.
 * SSH access with sudo permissions to Ansible targets
 
-The following Ansible targets are possible:
+### Ansible targets
 
 * Physical servers e.g., `restsrv01`
 * P4 switch control-plane CPUs
 * Virtual machines
 
-## Ansible playbooks
+### Ansible playbooks
 
 * `debian-kvm-p4dev-vm.yaml`: creates a new KVM virtual machine with P4 SDE
-* `adduser-interactive.yaml`: adds a single user to the target (interactive prompt).
+<!-- * `adduser-interactive.yaml`: adds a single user to the target (interactive prompt). -->
 * `p4dev-bootstrap.yaml`: adds users, configures network and add some SDE utilities
 
 ## 1) Create a VM for a new user
