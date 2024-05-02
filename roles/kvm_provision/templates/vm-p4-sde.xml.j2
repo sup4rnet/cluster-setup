@@ -1,5 +1,5 @@
 <domain type='kvm' id='1'>
-  <name>{{ item.vm_name }}</name>
+  <name>{{ item }}</name>
   <metadata>
     <libosinfo:libosinfo xmlns:libosinfo="http://libosinfo.org/xmlns/libvirt/domain/1.0">
       <libosinfo:os id="http://ubuntu.com/ubuntu/20.04"/>
@@ -36,7 +36,7 @@
     <emulator>/usr/bin/qemu-system-x86_64</emulator>
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2' discard='unmap'/>
-      <source file='{{ libvirt_pool_dir }}/{{ base_image_name_no_extension }}-{{ item.vm_name }}.qcow2' index='1'/>
+      <source file='{{ libvirt_pool_dir }}/{{ base_image_name_no_extension }}-{{ item }}.qcow2' index='1'/>
       <backingStore/>
       <target dev='vda' bus='virtio'/>
       <alias name='virtio-disk0'/>
@@ -142,7 +142,6 @@
       <address type='pci' domain='0x0000' bus='0x03' slot='0x00' function='0x0'/>
     </controller>
     <interface type='network'>
-      <mac address='52:54:00:08:2b:95'/>
       <source network='default' portid='fd0f5881-7276-4f68-8150-15808749dce7' bridge='virbr0'/>
       <target dev='vnet0'/>
       <model type='virtio'/>
@@ -169,7 +168,7 @@
       <alias name='serial0'/>
     </console>
     <channel type='unix'>
-      <source mode='bind' path='/var/lib/libvirt/qemu/channel/target/domain-1-{{ base_image_name_no_extension }}-{{ item.vm_name }}/org.qemu.guest_agent.0'/>
+      <source mode='bind' path='/var/lib/libvirt/qemu/channel/target/domain-1-{{ base_image_name_no_extension }}-{{ item }}/org.qemu.guest_agent.0'/>
       <target type='virtio' name='org.qemu.guest_agent.0' state='disconnected'/>
       <alias name='channel0'/>
       <address type='virtio-serial' controller='0' bus='0' port='1'/>

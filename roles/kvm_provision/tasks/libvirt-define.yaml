@@ -2,50 +2,42 @@
 
     - name: Debug
       debug:
-        msg: "Defining VM {{ item.vm_name }}"
-    
-    # # TODO: implement when clause to check if VM is already defined
-    # - name: Shutdown VM
-    #   community.libvirt.virt:
-    #     name: "{{ item.vm_name }}"
-    #     state: shutdown
+        msg: "Defining VM {{ item }}, existing: {{ existing_vms }}"
 
-    - name: Workaround check file exist without checksumming
-      stat: 
-        path: "{{ libvirt_pool_dir }}/{{ base_image_name_no_extension }}-{{ item.vm_name }}.qcow2"
-        get_checksum: false
-        get_md5: false
-      register: file
+    - name: Shutdown VM
+      community.libvirt.virt:
+        name: "{{ item }}"
+        state: shutdown
+      when: reconfigure_running_vms and item in existing_vms.list_vms
 
     - name: Copy base image to libvirt directory
       copy:
-        dest: "{{ libvirt_pool_dir }}/{{ base_image_name_no_extension }}-{{ item.vm_name }}.qcow2"
+        dest: "{{ libvirt_pool_dir }}/{{ base_image_name_no_extension }}-{{ item }}.qcow2"
         src: "{{ libvirt_pool_dir }}/{{ base_image_name_no_extension }}.qcow2"
         force: false
         remote_src: yes
         mode: 0660
       register: copy_results
-      when: not file.stat.exists
+      when: item not in existing_vms.list_vms
 
+    #TODO ssh-inject needs we move pubkeys to server first (better to handle via bootstrap later)
     - name: Configure the image
       command: |
-        virt-customize -a {{ libvirt_pool_dir }}/{{ base_image_name_no_extension }}-{{ item.vm_name }}.qcow2 \
-        --hostname {{ item.vm_name }} \
+        virt-customize -a {{ libvirt_pool_dir }}/{{ base_image_name_no_extension }}-{{ item }}.qcow2 \
+        --hostname {{ item }} \
         --root-password password:{{ vm_root_pass }}
-        --ssh-inject {{ item.vm_admin_user }}:file:/home/{{ ansible_user }}/.ssh/id_rsa.pub
-        --ssh-inject {{ item.vm_admin_user }}:file:/home/{{ ansible_user }}/.ssh/id_ed25519.pub
-      when: copy_results is changed
+      when: reconfigure_running_vms
 
     - name: Define vm
       community.libvirt.virt:
         command: define
         xml: "{{ lookup('template', 'vm-p4-sde.xml.j2') }}"
 
-  when: "item.vm_name not in existing_vms or reconfigure_running_vms"
+  when: reconfigure_running_vms or item not in existing_vms.list_vms
 
 - name: Start VM
   community.libvirt.virt:
-    name: "{{ item.vm_name }}"
+    name: "{{ item }}"
     state: running
   register: vm_start_results
   until: "vm_start_results is success"
@@ -54,5 +46,5 @@
   
 - name: Ensure VM autostart at boot
   community.libvirt.virt:
-    name: "{{ item.vm_name }}"
+    name: "{{ item }}"
     autostart: yes

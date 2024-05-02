@@ -1,6 +1,0 @@
-- name: Bootstrap VMs
-  hosts: vms
-  become: true
-  roles:
-    - ../roles/bootstrap
-    

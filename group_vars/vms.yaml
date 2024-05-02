@@ -1,1 +1,2 @@
 bridge_vm_guest_iface: enp7s0
+user_groups: sudo, p4-restart

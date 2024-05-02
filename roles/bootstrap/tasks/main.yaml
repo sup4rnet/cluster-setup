@@ -1,26 +1,17 @@
 
 - name: Debug
   debug:
-    msg: "Hostname is {{ ansible_hostname }} , with ip {{ vm_dataplane_ipv4 }}. Connected as {{ ansible_user }}"
-
-- name: Configure netplan static IP
-  ansible.builtin.template:
-    src: 01-netcfg.yaml.j2
-    dest: /etc/netplan/01-netcfg.yaml
-  notify:
-    - Apply netplan
+    msg: "Hostname is {{ ansible_hostname }}. Connected as {{ ansible_user }}"
 
 - name: Create {{ users }} and add to p4 group
   ansible.builtin.user:
     name: "{{ item }}"
     shell: /bin/bash
     groups: "{{ user_groups }}"
-    append: yes
     password: "{{ 'p4-restart' | password_hash('sha512', 'mysecretsalt') }}"
     update_password: on_create
     state: present
   with_items: "{{ users }}"
-
 
 - name: Set sudoers for ansible_user
   ansible.builtin.copy:
@@ -30,7 +21,18 @@
     owner: root
     group: root
     mode: 0440
+
+- name: Set authorized key copying it from current user
+  ansible.posix.authorized_key:
+    user: "{{ ansible_user }}"
+    state: present
+    key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+
     
+- name: debug
+  debug:
+    msg: "SDE is {{ sde }}"
+
 - name: populate /etc/environment
   lineinfile:
     path: "/etc/environment"
@@ -43,6 +45,7 @@
   ansible.builtin.lineinfile:
     path: /home/{{ item }}/.bashrc
     state: present
+    create: true
     line: 'export PATH="$PATH:{{ sde_path }}"'
   with_items: "{{ users }}"
 
@@ -77,3 +80,7 @@
     dest: "{{ sde_path }}/p4-build"
     content: "{{ lookup('file', 'p4-build.sh') }}"
     mode: "0775"
+
+- name: Set hostname to {{ ansible_host }}
+  ansible.builtin.hostname:
+    name: "{{ ansible_host }}"

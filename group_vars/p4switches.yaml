@@ -1,2 +1,8 @@
 
-user_groups: sudo, p4-restart
+user_groups: p4-restart
+admin_user: p4-restart
+
+users:
+  - p4-restart
+  - p4-scheduler-admin
+  - zhihaow

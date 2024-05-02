@@ -1,16 +1,19 @@
+sde: /opt/p4-sde/bf-sde-9.13.2
+sde_install: "{{ sde }}/install"
+
 os_environment:
   - key: SDE
-    value : /opt/p4-sde/bf-sde-9.13.2
+    value : "{{ sde }}"
   - key: SDE_INSTALL
-    value : /opt/p4-sde/bf-sde-9.13.2/install
+    value : "{{ sde_install }}"
 
 sde_path: /opt/p4-sde/bf-sde-9.13.2/install/bin
 
 ansible_python_interpreter: /usr/bin/python3
 
 users:
+  - p4-restart
   - zhihaow
 
-user_groups: 
-  - sudo
+user_groups:
   - p4-restart
