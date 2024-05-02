@@ -1,0 +1,24 @@
+- name: Dependencies
+  package:
+    name: 
+      - "task-spooler"
+    state: present
+
+- name: Set permissions on switchd for the user
+  file:
+    path: "{{ sde }}/run_switchd.sh"
+    mode: "0740"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Set sudoers for users in p4-restart group
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers.d/{{ ansible_user }}
+    line: '%{{ ansible_user }} ALL=(p4-scheduler-admin) NOPASSWD: /usr/bin/tsp'
+    state: present
+
+- name: Set sudoers for job_scheduling_user
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers.d/{{ ansible_user }}
+    line: 'p4-scheduler-admin ALL=(root) NOPASSWD: /opt/p4-sde/bf-sde-9.13.2/run_switchd.sh'
+    state: present

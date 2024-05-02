@@ -1,0 +1,19 @@
+VM AUTOMATION
+
+- check if P4 Studio is installed (or install otehrwise) in bootstrap role
+- DHCP server / netplan IP addresses integrated with ansible 
+- remove vm should be also automatic
+
+P4:
+
+- p4-build: add CMake options, add -c clean option
+
+- remove users from physical servers (keep only single user ubuntu without sudo permissions)
+
+
+CALENDLY APIs:
+
+- get invitees look at (need to get various uuid before):
+
+https://developer.calendly.com/api-docs/eb8ee72701f99-list-event-invitees
+
