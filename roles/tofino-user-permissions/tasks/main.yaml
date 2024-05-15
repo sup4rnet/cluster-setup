@@ -1,0 +1,40 @@
+- name: Dependencies
+  package:
+    name: 
+      - "members"
+    state: present
+
+- name: Create home directory .restart in {{ ansible_user }} user
+  ansible.builtin.file:
+    path: "{{ restart_install_dir }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+
+
+- name: Allow the {{ p4_restart_group }} group to run sudo apt
+  community.general.sudoers:
+    name: p4-restart-tenants-permissions
+    group: "{{ p4_restart_group}}"
+    commands: /usr/bin/apt
+
+- name: Create deny-ssh group
+  ansible.builtin.group:
+    name: deny-ssh
+    state: present
+
+- name: Add DenyGroups to sshd config
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config.d/10-deny-ssh.conf
+    line: 'DenyGroups deny-ssh'
+    state: present
+    create: true
+  notify:
+    - Restart sshd
+
+- name: Copy enable script to {{ restart_install_dir }}
+  ansible.builtin.template:
+    src: "enable_ssh_access.sh.j2"
+    dest: "{{ restart_install_dir }}/enable_ssh_access.sh"
+    mode: 0755

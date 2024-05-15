@@ -1,0 +1,6 @@
+---
+# vars file for roles/p4-book-webapp
+
+# install directory on the Tofinos to trigger
+restart_install_dir: "/home/{{ user_to_notify_on_switches }}/.restart-super"
+ssh_auth_config: "{{ restart_install_dir }}/ssh_authorized_user"

@@ -1,0 +1,7 @@
+- name: Bootstrap VMs environment
+  become: true
+  hosts: 
+    - vms
+  roles:
+    - ../roles/bootstrap
+    - ../roles/network    

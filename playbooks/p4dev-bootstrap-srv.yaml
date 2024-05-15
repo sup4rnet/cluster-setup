@@ -1,0 +1,39 @@
+
+- name: Configure environment for servers
+  become: true
+  hosts: restsrv01 # used this as bastion
+  
+  tasks:
+  
+    - name: Create server users (here only proxy user)
+      ansible.builtin.user:
+        name: "{{ item }}"
+        shell: /bin/bash
+        password: "{{ 'ubuntu' | password_hash('sha512', 'mysecretsalt') }}"
+        update_password: on_create
+        state: present
+      with_items: "{{ users }}"
+
+    
+    - name: Check user db exists
+      stat:
+        path: "{{ tofino_rsvp_install_dir }}/webapp/.data/users.csv"
+      register: user_db
+
+    
+    - name: Override users variable with Tofino users (ugly workaround)
+      ansible.builtin.include_vars:
+        file: ../group_vars/p4switches.yaml
+      
+    # - name: Adding Tofino users to webapp db 
+    #   debug:
+    #     msg: "Adding {{ item }} to dashboard"
+    #   with_items: "{{ users }}"
+      
+    - name: "Adding Tofino users to webapp db: {{ tofino_rsvp_install_dir }}/webapp"
+      ansible.builtin.lineinfile:
+        path: "{{ tofino_rsvp_install_dir }}/webapp/.data/users.csv"
+        line: "{{ item }}"
+      with_items: "{{ users }}"
+      when: user_db.stat.exists
+

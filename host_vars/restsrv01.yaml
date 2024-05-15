@@ -1,2 +1,4 @@
 vms:
   - restsrv01-smartdata01
+
+tofino_rsvp_install_dir: /opt/tofino-rsvp

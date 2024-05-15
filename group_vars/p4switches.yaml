@@ -1,8 +1,7 @@
 
-user_groups: p4-restart
-admin_user: p4-restart
-
 users:
   - p4-restart
-  - p4-scheduler-admin
   - zhihaow
+
+user_groups: p4-restart
+admin_user: p4-restart

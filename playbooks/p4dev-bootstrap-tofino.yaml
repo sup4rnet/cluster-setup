@@ -1,0 +1,18 @@
+- name: Configure environment for P4 switch
+  become: true
+  hosts: p4switches  
+  roles:
+    - ../roles/bootstrap
+    - ../roles/tofino-user-permissions
+
+
+- name: Deploy P4 booking dashboard Web app
+  become: true
+  # to keep the ssh-agent socket when executing with root
+  # https://stackoverflow.com/questions/24124140/ssh-agent-forwarding-with-ansible
+  become_flags: "--preserve-env=SSH_AUTH_SOCK"
+  hosts: restsrv01
+  roles:
+    - ../roles/p4-book-webapp
+  tags: 
+    - run

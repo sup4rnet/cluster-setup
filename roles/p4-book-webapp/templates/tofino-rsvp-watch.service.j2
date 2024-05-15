@@ -1,0 +1,11 @@
+[Unit]
+Description=Watch file changes in Tofino
+After=network.target
+
+[Service]
+WorkingDirectory={{ tofino_rsvp_install_dir }}
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+ExecStart={{ tofino_rsvp_install_dir }}/rest-db-watch.sh
+
+[Install]
+WantedBy=multi-user.target

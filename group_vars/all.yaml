@@ -11,9 +11,6 @@ sde_path: /opt/p4-sde/bf-sde-9.13.2/install/bin
 
 ansible_python_interpreter: /usr/bin/python3
 
-users:
-  - p4-restart
-  - zhihaow
-
-user_groups:
-  - p4-restart
+p4_restart_group: p4-restart # group name for p4-restart users
+restart_install_dir: "/home/{{ ansible_user }}/.restart-super"
+ssh_auth_config: "{{ restart_install_dir }}/ssh_authorized_user"

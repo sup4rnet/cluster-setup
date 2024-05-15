@@ -1,0 +1,119 @@
+---
+- name: Generate an OpenSSH keypair in {{ ansible_user_dir }}/.ssh
+  community.crypto.openssh_keypair:
+    path: "{{ ansible_user_dir }}/.ssh/id_rsa"
+    group: "{{ ansible_user }}"
+    owner: "{{ ansible_user }}"
+    regenerate: fail
+  register: ssh_key
+
+- name: Authorize ssh key on Tofino-s for {{ user_to_notify_on_switches }} user
+  delegate_to: "{{ item }}"
+  authorized_key:
+     key: "{{ ssh_key.public_key }}"
+     comment: "{{ ansible_hostname }}"
+     user: "{{ user_to_notify_on_switches }}"
+  with_items: "{{ groups['p4switches'] }}"
+
+- name: debug
+  debug:
+    msg: "{{ ansible_hostname }} {{ ssh_key.public_key }}"
+  with_items: "{{ groups['p4switches'] }}"
+  vars:
+    ansible_hostname: "{{ hostvars[item].ansible_host }}"
+
+- name: Add Tofino-s to known_hosts
+  ansible.builtin.known_hosts:
+    hash_host: true
+    name: "{{ name }}"
+    key: "{{ lookup('pipe', 'ssh-keyscan {{ name }}') }}"
+    path: "{{ ansible_user_dir }}/.ssh/known_hosts"
+    state: present
+  with_items: "{{ groups['p4switches'] }}"
+  vars:
+    name: "{{ hostvars[item].ansible_host }}"
+
+- name: Cloning {{ tofino_rsvp_repo }}
+  ansible.builtin.git:
+    repo: "{{ tofino_rsvp_repo }}"
+    dest: "{{ tofino_rsvp_install_dir }}/webapp/"
+    update: yes
+    version: main
+    force: yes
+
+- name: Install virtualenv
+  package:
+    name: python3-virtualenv
+    state: present
+
+- name: Install python dependencies
+  ansible.builtin.pip:
+    requirements: "{{ tofino_rsvp_install_dir }}/webapp/requirements.txt"
+    virtualenv: "{{ tofino_rsvp_install_dir }}/webapp/.venv"
+    virtualenv_python: python3
+
+- name: Check if entr is installed
+  ansible.builtin.shell: "which entr"
+  register: entr_available
+
+- block:  
+  - name: Clone entr repo
+    ansible.builtin.git:
+      repo: https://github.com/eradman/entr.git
+      dest: /opt/entr
+
+  - name: Configure entr
+    shell: |
+      ./configure
+    args:
+      chdir: /opt/entr
+
+  - name: Build the default target
+    make:
+      chdir: /opt/entr
+      target: test
+
+  - name: Run 'install' target as root
+    make:
+      chdir: /opt/entr
+      target: install
+  when: entr_available.rc != 0
+
+- name: Copy in the install folder on-rsvp-change.sh
+  template:
+    src: "on-rsvp-change.sh.j2"
+    dest: "{{ tofino_rsvp_install_dir }}/on-rsvp-change.sh"
+    mode: 0755
+
+- name: Copy in the install folder rest-db-watch.sh
+  template:
+    src: "rest-db-watch.sh.j2"
+    dest: "{{ tofino_rsvp_install_dir }}/rest-db-watch.sh"
+    mode: 0755
+  notify: Restart tofino-rsvp-watch
+
+- name: Install systemd service for RSVP web app
+  ansible.builtin.template:
+    src: "tofino-rsvp.service.j2"
+    dest: "/etc/systemd/system/tofino-rsvp.service"
+    mode: 0644
+
+- name: Restart tofino-rsvp
+  ansible.builtin.systemd:
+    name: tofino-rsvp
+    enabled: yes
+    state: restarted
+    daemon_reload: true
+
+- name: Set ownership of the .data directory to {{ ansible_user }}
+  ansible.builtin.file:
+    path: "{{ tofino_rsvp_install_dir }}/webapp/.data"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    recurse: yes
+
+- name: Install systemd service for watching for changes in the web app db
+  ansible.builtin.template:
+    src: "tofino-rsvp-watch.service.j2"
+    dest: "/etc/systemd/system/tofino-rsvp-watch.service"
+    mode: 0644

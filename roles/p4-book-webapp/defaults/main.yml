@@ -1,0 +1,7 @@
+---
+# defaults file for roles/p4-book-webapp
+
+tofino_rsvp_install_dir: /opt/tofino-rsvp
+tofino_rsvp_repo: git@github.com:alessandrocornacchia/tofino-rsvp-webapp.git
+
+user_to_notify_on_switches: p4-restart # same as vm_admin_user

@@ -28,11 +28,6 @@
     state: present
     key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
 
-    
-- name: debug
-  debug:
-    msg: "SDE is {{ sde }}"
-
 - name: populate /etc/environment
   lineinfile:
     path: "/etc/environment"

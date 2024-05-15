@@ -1,0 +1,6 @@
+- name: Restart tofino-rsvp-watch
+  ansible.builtin.systemd:
+    name: tofino-rsvp-watch
+    enabled: yes
+    state: restarted
+    daemon_reload: true

@@ -1,3 +1,5 @@
+Executed on VMs, servers and Tofino switches
+
 - Set static IP address on VM interface using `netplan`
 - Configures users on VM
 - Installs Intel P4 Studio if not present
