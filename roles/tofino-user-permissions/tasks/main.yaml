@@ -17,7 +17,10 @@
   community.general.sudoers:
     name: p4-restart-tenants-permissions
     group: "{{ p4_restart_group}}"
-    commands: /usr/bin/apt
+    commands: 
+      - /usr/bin/apt
+      - "{{ sde }}/run_switchd.sh"
+      - /usr/local/bin/p4
 
 - name: Create deny-ssh group
   ansible.builtin.group:
