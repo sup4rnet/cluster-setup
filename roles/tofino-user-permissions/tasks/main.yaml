@@ -12,6 +12,10 @@
     group: "{{ ansible_user }}"
     mode: 0755
 
+- name: chmod g-w p4studio/CMakeLists.txt
+  ansible.builtin.file:
+    path: "{{ sde }}/p4studio/CMakeLists.txt"
+    mode: 0644
 
 - name: Allow the {{ p4_restart_group }} group to run sudo apt
   community.general.sudoers:
@@ -20,7 +24,22 @@
     commands: 
       - /usr/bin/apt
       - "{{ sde }}/run_switchd.sh"
+      - "{{ sde_install }}/bin/p4-build"
       - /usr/local/bin/p4
+      - /usr/local/bin/p4-build
+      - /usr/bin/pkill bf_switchd
+
+- name: Set cpability to network access for python code
+  community.general.capabilities:
+    path: /usr/bin/python3.8
+    capability: cap_net_raw,cap_net_admin=eip
+    state: present
+
+- name: Set capability to network access for tcpdump
+  community.general.capabilities:
+    path: /usr/sbin/tcpdump
+    capability: cap_net_raw,cap_net_admin=eip
+    state: present
 
 - name: Create deny-ssh group
   ansible.builtin.group:

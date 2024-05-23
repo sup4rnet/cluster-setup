@@ -74,7 +74,13 @@
   ansible.builtin.copy:
     dest: "{{ sde_path }}/p4-build"
     content: "{{ lookup('file', 'p4-build.sh') }}"
-    mode: "0775"
+    mode: "0755"
+
+- name: Create symlink in /usr/bin/
+  ansible.builtin.file:
+    src: "{{ sde_path }}/p4-build"
+    dest: /usr/bin/p4-build
+    state: link
 
 - name: Set hostname to {{ ansible_host }}
   ansible.builtin.hostname:

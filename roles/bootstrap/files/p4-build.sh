@@ -4,9 +4,10 @@ help()
 {
     echo "------------------------------------------------------------------------------------------"
     echo "| Helper script to compile P4 programs assuming SDE and SDE_INSTALL env variables are set |"
-    echo "|   @author: Alessandro Cornacchia                                                        |"
+    echo "|   @author: Alessandro Cornacchia
+    |"
     echo "------------------------------------------------------------------------------------------"
-    echo "Usage: p4-build [ OPTIONS | -h ] <prog.p4>"              
+    echo "Usage: p4-build [ OPTIONS | -h ] clean | <prog.p4>"
     echo ""
     echo "Available OPTIONS are:"
     echo ""
@@ -23,7 +24,7 @@ if [ "$#" -eq 0 ]; then
   help
 fi
 
-SHORT=o:,p:,h 
+SHORT=o:,p:,h
 LONG=p4-path:,p4-name:,help
 OPTS=$(getopt -a -n p4-build --options $SHORT --longoptions $LONG -- "$@")
 
@@ -59,6 +60,12 @@ do
   esac
 done
 
+# build directory or defaults
+if [ -z $DIR ]
+then
+  DIR=./build
+fi
+
 # at this ponint we process <prog.p4> string, error if not found
 if [ "$#" == 0 ] ; then
   echo -e "Error: <prog.p4> not specified"
@@ -66,8 +73,14 @@ if [ "$#" == 0 ] ; then
   help
 fi
 
+if [ "$1" == clean ] ;  then
+   echo "remove build directory $(pwd)/build..."
+   sudo rm -rf $DIR
+   exit $?
+fi
+
 # get absolute path of prog.p4
-P4_PATH=`realpath ${1}`
+P4_PATH="`realpath ${1}`"
 
 if [[ $? -ne 0 ]]; then
   echo -e "Error: ${1} not found"
@@ -78,10 +91,6 @@ fi
 BUILD_OPTS="${BUILD_OPTS}-DP4_PATH=${P4_PATH} "
 
 # go into build directory
-if [ -z $DIR ]
-then
-  DIR=./build
-fi
 mkdir -p $DIR
 cd $DIR
 
