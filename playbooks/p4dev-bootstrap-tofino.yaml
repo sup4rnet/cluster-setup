@@ -3,4 +3,4 @@
   hosts: p4switches  
   roles:
     - ../roles/bootstrap
-    - ../roles/tofino-user-permissions
+    - ../roles/tofino-config

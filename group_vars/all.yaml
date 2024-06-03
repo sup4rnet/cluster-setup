@@ -7,7 +7,7 @@ os_environment:
   - key: SDE_INSTALL
     value : "{{ sde_install }}"
 
-sde_path: /opt/p4-sde/bf-sde-9.13.2/install/bin
+sde_path: "{{ sde_install }}/bin"
 
 ansible_python_interpreter: /usr/bin/python3
 

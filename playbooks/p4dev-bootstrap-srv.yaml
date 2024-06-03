@@ -19,7 +19,7 @@
   
   tasks:
   
-    - name: Create server users (here only proxy user)
+    - name: Create server users
       ansible.builtin.user:
         name: "{{ item }}"
         shell: /bin/bash
@@ -44,6 +44,7 @@
     #     msg: "Adding {{ item }} to dashboard"
     #   with_items: "{{ users }}"
       
+    # now user variable is Tofino usernames, add them to the webapp db
     - name: "Adding Tofino users to webapp db: {{ tofino_rsvp_install_dir }}/webapp"
       ansible.builtin.lineinfile:
         path: "{{ tofino_rsvp_install_dir }}/webapp/.data/users.csv"

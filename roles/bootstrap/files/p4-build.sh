@@ -95,9 +95,13 @@ mkdir -p $DIR
 cd $DIR
 
 # run cmake command
-# neat: derive P4_NAME from its output while mantaining stderr/stdout
+# neat: derive P4_NAME from cmake output while mantaining stderr/stdout
 P4_NAME=$(cmake $SDE/p4studio ${BUILD_OPTS} |& tee /dev/tty |& grep P4_NAME)
 P4_NAME=$(echo $P4_NAME | cut -d ' ' -f 2)
 
-# make it
-make $P4_NAME && make install
+
+# -B flags: force re-build (if .p4 files are included in main.p4)
+# and you change only the included files, compile will not be triggered
+# because the main p4 file is not changed and cmake doesn't know about the included files
+# TODO check if there is a better way to handle this
+make -B $P4_NAME && sudo make install

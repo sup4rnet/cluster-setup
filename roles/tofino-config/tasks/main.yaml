@@ -60,3 +60,31 @@
     src: "enable_ssh_access.sh.j2"
     dest: "{{ restart_install_dir }}/enable_ssh_access.sh"
     mode: 0755
+
+- name: Create directory for extra modules if does not exists
+  ansible.builtin.file:
+    path: "/lib/modules/{{ ansible_kernel }}/extra"
+    state: directory
+
+- name: Make sure module is linked to module directory
+  ansible.builtin.file:
+    src: "{{ sde_install }}/lib/modules/bf_kdrv.ko"
+    dest: "/lib/modules/{{ ansible_kernel }}/extra/bf_kdrv.ko"
+    state: link
+
+- name: Add line to modules.dep file
+  ansible.builtin.lineinfile:
+    path: "/lib/modules/{{ ansible_kernel }}/modules.dep"
+    line: "extra/bf_kdrv.ko:"
+    state: present
+
+- name: update module dependencies (depmod)
+  ansible.builtin.shell:
+    cmd: "/usr/sbin/depmod"
+
+- name: load kernel module bf_kdrv
+  ansible.builtin.modprobe:
+    name: bf_kdrv
+    state: present
+    params: intr_mode="msi"
+    persistent: "present"

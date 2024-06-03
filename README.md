@@ -1,12 +1,12 @@
-# SUPER Network Programmability Cluster
+# SUPERNET: the SUPER programmable P4 NETwork cluster
 
 Set of Ansible automation script to deploy new Virtual Machines (VMs) within the experimental SUPER testbed within Politecnico di Torino. Each VM is configured with:
 
 * Intel P4 Studio and Tofino switch model
 * Network access to the dataplane network `10.10.0.0/24`
 
-## Overview (temporary minimal setup)
-The cluster is currently under deployment. In its current configuration contains one server `restsrv01.polito.it` equipped with Debian 12, which can host guests VM using KVM and QEMU.
+## Overview (subject to changes)
+The cluster might be subject to changes as new/current servers are integrated/replaced. In its current configuration contains one server `restsrv01.polito.it` equipped with Debian 12, which hosts tenants VMs (KVM libvirt + QEMU).
 
 Two Intel Tofino P4 programmable switches `rest-bfsw01.polito.it` and `rest-bfsw02.polito.it`  are available.
 
@@ -67,14 +67,14 @@ You have two options to connect.
 1) Connect via ssh to `restsrv01.polito.it`, and from there connect via ssh to your VM:
 
 ```
-ssh <your user>@restsrv01.polito.it
+ssh ubuntu@restsrv01.polito.it
 ssh <your user>@<vm hostname>
 ```
 
 2) Single-step `ssh` using `restsrv01.polito.it` as a jump proxy:
 
 ```
-ssh -J <your user>@restsrv01.polito.it <your user>@<vm hostname>
+ssh -J ubuntu@restsrv01.polito.it <your user>@<vm hostname>
 ```
 
 For convenience, you may want to add the following lines to your `.ssh/config` file. Replace:
