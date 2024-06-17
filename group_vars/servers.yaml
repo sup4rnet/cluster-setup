@@ -1,14 +1,24 @@
-users:
-  - ubuntu
-
 # could be different from ansible_user in the server
 vm_admin_user: p4-restart
 
-libvirt_bridged_net_name: bridged-network
-bridge_name: br0
-bridge_host_iface: ens5f0
-bridge_host_ip: 10.10.0.10/24
-bridge_host_gw: 10.10.0.1
+bridges:
+  - bridge_name: br0
+    libvirt_bridged_net_name: bridged-network
+    bridge_host_iface: ens5f0
+    bridge_host_ip: 10.10.0.10/24
+    bridge_host_gw: 10.10.0.1
+
+  - bridge_name: br1
+    libvirt_bridged_net_name: bridged-network1
+    bridge_host_iface: ens5f1
+    bridge_host_ip: 10.10.0.101/24
+    bridge_host_gw: 10.10.0.1
+
+# libvirt_bridged_net_name: 
+# bridge_name: br0
+# bridge_host_iface: ens5f0
+# bridge_host_ip: 10.10.0.10/24
+# bridge_host_gw: 10.10.0.1
 
   
 

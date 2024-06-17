@@ -1,0 +1,5 @@
+dataplane_ipv4:
+  - ifname: enp4s0f0
+    ip: 10.10.0.4/24
+  - ifname: enp4s0f1
+    ip: 10.10.0.5/24

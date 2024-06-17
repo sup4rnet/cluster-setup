@@ -1,0 +1,15 @@
+# This file describes the network interfaces available on your system
+# For more information, see netplan(5).
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp1s0:
+      dhcp4: yes
+      dhcp-identifier: mac
+    {% for index in range(dataplane_ipv4|length) %}
+    {{- bridge_vm_guest_iface[index] }}:
+      dhcp4: no
+      addresses:
+        - "{{ dataplane_ipv4[index] }}"
+    {% endfor %}

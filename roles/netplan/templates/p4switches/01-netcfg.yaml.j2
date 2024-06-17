@@ -7,7 +7,9 @@ network:
     enp1s0:
       dhcp4: yes
       dhcp-identifier: mac
-    {{ bridge_vm_guest_iface }}:
+    {% for index in range(dataplane_ipv4|length) %}
+    {{- dataplane_ipv4[index].ifname }}:
       dhcp4: no
       addresses:
-        - "{{ vm_dataplane_ipv4 }}"
+        - "{{ dataplane_ipv4[index].ip }}"
+    {% endfor %}

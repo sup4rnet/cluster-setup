@@ -19,6 +19,12 @@ The VMs must be reachable on the DATAPLANE network `10.10.0.0/24`. We connect ne
 
 A base VM image (qcow2 file) with default account `p4-restart` and Intel P4 Studio environment configured is available under `/var/lib/libvirt/images/ubuntu20.04-p4-sde.qcow2`.
 
+### Ansible variables for network setup
+At the very minimum, prior to running the Ansible roles on a new server, one should edit the following variables (see an example in `group_vars/servers.yaml`).
+
+- `bridge_host_iface`: this is the data plane interface in the host server
+- `bridge_host_ip`: this is the IP address at which the host will be reachable on the data plane network at `bridge_host_iface`
+
 ### VM network setup (manual)
 
 The process described in the following has been automated with Ansible. Refer to the [Ansible playbooks folder](../../playbooks/README.md).

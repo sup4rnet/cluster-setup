@@ -1,6 +1,0 @@
-- name: Configure netplan static IP
-  ansible.builtin.template:
-    src: "{{ group_names[0] }}/01-netcfg.yaml.j2"
-    dest: /etc/netplan/01-netcfg.yaml
-  notify:
-    - Apply netplan

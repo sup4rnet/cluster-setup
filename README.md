@@ -46,10 +46,14 @@ List of IP addresses in use (temporary and to be replaced with DHCP):
 
 | IP address | Hostname | Description | Contact |
 | --- | --- | --- | --- |
-| `10.10.0.2` | `rest-bfsw01` | Tofino internal CPU Ethernet port | admin
-| `10.10.0.3` | `rest-bfsw01` | Tofino internal CPU Ethernet port | admin
-| `10.10.0.10` | `restsrv01` | Dataplane port `enp5s0` | admin
+| `10.10.0.2` | `rest-bfsw01` | Tofino internal CPU Ethernet port | alessandro.cornacchia@polito.it
+| `10.10.0.3` | `rest-bfsw01` | Tofino internal CPU Ethernet port | "
+| `10.10.0.4` | `rest-bfsw02` | Tofino internal CPU Ethernet port | "
+| `10.10.0.5` | `rest-bfsw02` | Tofino internal CPU Ethernet port | "
+| `10.10.0.10` | `restsrv01` | Dataplane port@bridge `enp5s0@br0` | "
+| `10.10.0.101` | `restsrv01` | Dataplane port `ens5f1@br1` | "
 | `10.10.0.11` | `restsrv01-smartdata01` | User VM | zhihao.wang@polito.it
+| `10.10.0.12` | `restsrv01-smartdata01` | User VM | zhihao.wang@polito.it
 
 
 ## User access to VM
@@ -67,31 +71,28 @@ You have two options to connect.
 1) Connect via ssh to `restsrv01.polito.it`, and from there connect via ssh to your VM:
 
 ```
-ssh ubuntu@restsrv01.polito.it
+ssh <your user>@restsrv01.polito.it
 ssh <your user>@<vm hostname>
 ```
 
 2) Single-step `ssh` using `restsrv01.polito.it` as a jump proxy:
 
 ```
-ssh -J ubuntu@restsrv01.polito.it <your user>@<vm hostname>
+ssh -J <your user>@restsrv01.polito.it <your user>@<vm hostname>
 ```
 
 For convenience, you may want to add the following lines to your `.ssh/config` file. Replace:
 
-* `<vm hostname>` with your VM's hostname (e.g., `restsrv01-smartdata01`).
-* `<VM user>` and `<proxy user>` with your username on the VM and on `restsrv01` (proxy server) respectively. Likely they are the same.
-
 ```
-Host <vm hostname>
-  User <VM user>
-  ProxyCommand ssh <proxy user>@restsrv01.polito.it -W %h:%p
+Host <vm name>
+  User <your user>
+  ProxyCommand ssh <you user user>@restsrv01.polito.it -W %h:%p
 ```
 
 You can then connect by only typing on your client:
 ```
-ssh <vm hostname>
+ssh <vm name>
 ```
 
 ### Note about hostname resolution
-The name `<vm hostname>` is only resolved locally at `restsrv01.polito.it` (thanks to `libvirt-nss` VM name resolution plugin). It cannot be resolved from other hosts outside `restsrv01.polito.it`, as no DNS records for the VMs exist.
+The name `<vm name>` is only resolved locally at `restsrv01.polito.it` (thanks to `libvirt-nss` VM name resolution plugin). It cannot be resolved from other hosts outside `restsrv01.polito.it`, as no DNS records for the VMs exist.

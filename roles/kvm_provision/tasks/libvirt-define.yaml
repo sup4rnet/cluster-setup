@@ -20,13 +20,17 @@
       register: copy_results
       when: item not in existing_vms.list_vms
 
-    #TODO ssh-inject needs we move pubkeys to server first (better to handle via bootstrap later)
     - name: Configure the image
       command: |
         virt-customize -a {{ libvirt_pool_dir }}/{{ base_image_name_no_extension }}-{{ item }}.qcow2 \
         --hostname {{ item }} \
         --root-password password:{{ vm_root_pass }}
       when: reconfigure_running_vms
+
+    - name: show templating results
+      debug:
+        msg: "{{ lookup('template', 'vm-p4-sde.xml.j2') }}"
+
 
     - name: Define vm
       community.libvirt.virt:

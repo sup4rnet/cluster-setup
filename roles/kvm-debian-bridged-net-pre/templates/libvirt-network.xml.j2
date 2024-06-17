@@ -1,5 +1,5 @@
 <network>
-    <name>{{ libvirt_bridged_net_name }}</name>
+    <name>{{ item['libvirt_bridged_net_name'] }}</name>
     <forward mode="bridge" />
-    <bridge name="{{ bridge_name }}" />
+    <bridge name="{{ item['bridge_name'] }}" />
 </network>

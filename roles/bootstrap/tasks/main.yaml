@@ -47,8 +47,8 @@
 - name: Change ownership of {{ sde_path }} to {{ item }}
   ansible.builtin.file:
     path: "{{ sde_path }}"
-    owner: "{{ admin_user }}"
-    group: "{{ admin_user }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     recurse: yes
 
 # add few useful shortcuts
@@ -85,3 +85,15 @@
 - name: Set hostname to {{ ansible_host }}
   ansible.builtin.hostname:
     name: "{{ ansible_host }}"
+
+- name: Set cpability to network access for python code
+  community.general.capabilities:
+    path: /usr/bin/python3.8
+    capability: cap_net_raw,cap_net_admin=eip
+    state: present
+
+- name: Set capability to network access for tcpdump
+  community.general.capabilities:
+    path: /usr/sbin/tcpdump
+    capability: cap_net_raw,cap_net_admin=eip
+    state: present

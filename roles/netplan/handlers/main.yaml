@@ -1,0 +1,5 @@
+- name: Apply netplan (run manually on the VM if not triggered)
+  ansible.builtin.command: netplan apply
+  changed_when: false
+  async: 45 # TODO not clear why this not runs
+  poll: 0

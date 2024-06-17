@@ -7,3 +7,5 @@
 - name: Create VMs if not exists
   ansible.builtin.include_tasks: ../roles/kvm_provision/tasks/libvirt-define.yaml
   loop: "{{ vms }}"
+  tags:
+    - run

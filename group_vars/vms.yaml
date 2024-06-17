@@ -1,4 +1,6 @@
-bridge_vm_guest_iface: enp7s0
+bridge_vm_guest_iface: 
+  - enp7s0
+  - enp8s0
 
 users:
   - "{{ tenant_username }}"  # this will be VM specific

@@ -23,40 +23,50 @@
     append: yes
     state: present
 
-- name: Add bridge connection
+- name: Add bridge
   ansible.builtin.nmcli:
-    conn_name: "{{ bridge_name }}"
-    ifname: "{{ bridge_name }}"
+    conn_name: "{{ item['bridge_name'] }}"
+    ifname: "{{ item['bridge_name'] }}"
     type: bridge
-    ip4: "{{ bridge_host_ip }}"
-    gw4: "{{ bridge_host_gw }}"
+    ip4: "{{ item['bridge_host_ip'] }}"
+    gw4: "{{ item['bridge_host_gw'] }}"
     stp: false
     state: present
+  with_items: "{{ bridges }}"
 
 - name: Add bridge-slave connection
   ansible.builtin.nmcli:
-    conn_name: bridge-slave-{{ bridge_host_iface }}
-    ifname: "{{ bridge_host_iface }}"
+    conn_name: bridge-slave-{{ item['bridge_host_iface'] }}
+    ifname: "{{ item['bridge_host_iface'] }}"
+    slave_type: bridge
     type: bridge-slave
-    hairpin: false
-    master: "{{ bridge_name }}"
+    master: "{{ item['bridge_name'] }}"
     state: present
+  with_items: "{{ bridges }}"
+
+- name: Set connection up
+  ansible.builtin.command:
+    cmd: nmcli con up "bridge-slave-{{ item['bridge_host_iface'] }}"
+  with_items: "{{ bridges }}"
 
 - name: Define a new bridged network
   community.libvirt.virt_net:
     command: define
-    name: bridged-network
+    name: "{{ item['libvirt_bridged_net_name'] }}"
     xml: '{{ lookup("template", "libvirt-network.xml.j2") }}'
+  with_items: "{{ bridges }}"
 
 - name: Ensure network started
   community.libvirt.virt_net:
-    name: bridged-network
+    name: "{{ item['libvirt_bridged_net_name'] }}"
     state: active
+  with_items: "{{ bridges }}"
 
 - name: Autostart network
   community.libvirt.virt_net:
-    name: bridged-network
+    name: "{{ item['libvirt_bridged_net_name'] }}"
     autostart: yes
+  with_items: "{{ bridges }}"
 
 - name: Configure libvirt VM name resolution
   lineinfile:

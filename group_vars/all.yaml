@@ -14,3 +14,8 @@ ansible_python_interpreter: /usr/bin/python3
 p4_restart_group: p4-restart # group name for p4-restart users
 restart_install_dir: "/home/{{ ansible_user }}/.restart-super"
 ssh_auth_config: "{{ restart_install_dir }}/ssh_authorized_user"
+
+users:
+  - ubuntu # TODO remove
+  - p4-restart
+  - zhihaow

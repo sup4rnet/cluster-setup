@@ -4,4 +4,4 @@
     - vms
   roles:
     - ../roles/bootstrap
-    - ../roles/network    
+    - ../roles/netplan    

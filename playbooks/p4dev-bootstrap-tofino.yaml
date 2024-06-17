@@ -3,4 +3,5 @@
   hosts: p4switches  
   roles:
     - ../roles/bootstrap
+    - ../roles/netplan
     - ../roles/tofino-config
