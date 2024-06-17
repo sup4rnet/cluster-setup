@@ -5,7 +5,7 @@ Set of Ansible automation script to deploy new Virtual Machines (VMs) within the
 * Intel P4 Studio and Tofino switch model
 * Network access to the dataplane network `10.10.0.0/24`
 
-## Overview (subject to changes)
+## Overview
 The cluster might be subject to changes as new/current servers are integrated/replaced. In its current configuration contains one server `restsrv01.polito.it` equipped with Debian 12, which hosts tenants VMs (KVM libvirt + QEMU).
 
 Two Intel Tofino P4 programmable switches `rest-bfsw01.polito.it` and `rest-bfsw02.polito.it`  are available.
@@ -24,7 +24,8 @@ Each VM will be assigned a virtual network interface directly attached to the da
 
 Internet connectivity to the VMs is provided through a second interface (NAT mode), and must be exclusively used for control operations e.g., install packages. Traffic generated on this interface is NOT routed through Tofino switches.
 
-See [details here](./roles/kvm_provision/README.md).
+* [How to configure bridge interfaces on KVM](./roles/kvm_provision/README.md). 
+* [Dataplane IP addresses in use](./playbooks/README.md#list-of-ip-addresses-in-use)
 
 ### P4 development environment and utilities
 VMs are provisioned with Intel P4 Software Development Environment (version 9.13.2) installed under `/opt/p4-sde/bf-sde-9.13.2`. The following commands are available:
@@ -36,25 +37,10 @@ VMs are provisioned with Intel P4 Software Development Environment (version 9.13
 * `tfm`: alias for `/opt/p4-sde/bf-sde-9.13.2/run_tofino_model.sh`
 * `switch-intel`: runs Intel Switch.p4, i.e., alias for `/opt/p4-sde/bf-sde-9.13.2/run_switchd.sh -p switch`
 
-## VM installation with Ansible playbooks
-Admin users can create a new VM with two steps:
+## Ansible playbooks
+VM creation and account provisioning on all the machines is automated via our set of Ansible playbooks. 
 
-* Pick an available IP address in the dataplane network.
-* Run the Ansible roles following the [instructions](playbooks/README.md).
-
-List of IP addresses in use (temporary and to be replaced with DHCP):
-
-| IP address | Hostname | Description | Contact |
-| --- | --- | --- | --- |
-| `10.10.0.2` | `rest-bfsw01` | Tofino internal CPU Ethernet port | alessandro.cornacchia@polito.it
-| `10.10.0.3` | `rest-bfsw01` | Tofino internal CPU Ethernet port | "
-| `10.10.0.4` | `rest-bfsw02` | Tofino internal CPU Ethernet port | "
-| `10.10.0.5` | `rest-bfsw02` | Tofino internal CPU Ethernet port | "
-| `10.10.0.10` | `restsrv01` | Dataplane port@bridge `enp5s0@br0` | "
-| `10.10.0.101` | `restsrv01` | Dataplane port `ens5f1@br1` | "
-| `10.10.0.11` | `restsrv01-smartdata01` | User VM | zhihao.wang@polito.it
-| `10.10.0.12` | `restsrv01-smartdata01` | User VM | zhihao.wang@polito.it
-
+Admin users can follow the [playbook documentation](./playbooks/README.md).
 
 ## User access to VM
 
