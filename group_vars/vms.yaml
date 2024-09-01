@@ -2,8 +2,8 @@ bridge_vm_guest_iface:
   - enp7s0
   - enp8s0
 
+# for VM specific users, set the host_users variable in the host_vars file
 users:
-  - "{{ tenant_username }}"  # this will be VM specific
   - "{{ ansible_user }}"
 
 user_groups: sudo, p4-restart

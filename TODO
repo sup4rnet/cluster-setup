@@ -1,15 +1,13 @@
+BUGS:
+- need to recompile the driver on rest-bf02 switch
+
 VM AUTOMATION
 
+- add logic to remove/rename vm through Ansible (need to delete qcow2 file)
+- check libvirt-define.yaml file if according to best practices for copying VM disk from base image
 - check if P4 Studio is installed (or install otehrwise) in bootstrap role
 - DHCP server / netplan IP addresses integrated with ansible 
-- remove vm should be also be Ansible based.... (need to delete qcow2 file)
 
 P4:
-
-- p4-build: add CMake options, add -c clean option
-
-- update README : use ubuntu on bastion
-
-- fix server, delete zhihaow account
 
 - service runs as root ...why? ssh keys should be geenrated for root...

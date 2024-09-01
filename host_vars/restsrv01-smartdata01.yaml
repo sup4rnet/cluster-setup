@@ -1,4 +1,7 @@
 dataplane_ipv4: 
   - 10.10.0.11/24
   - 10.10.0.12/24
-tenant_username: zhihaow
+
+# NOTE: this must be a list or it will fail
+host_users: 
+  - zhihaow

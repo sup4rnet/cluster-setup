@@ -3,7 +3,7 @@
   become: true
 
   vars:
-    reconfigure_running_vms: true  # force re-define existing libvirt VMs (with shutdown)
+    reconfigure_running_vms: false  # force re-define existing libvirt VMs (with shutdown)
 
   roles:
     - ../roles/kvm-debian-bridged-net-pre

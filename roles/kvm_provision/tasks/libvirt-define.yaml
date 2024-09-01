@@ -10,6 +10,7 @@
         state: shutdown
       when: reconfigure_running_vms and item in existing_vms.list_vms
 
+    # TODO: this had a native way for doing it (read somewhere in the docs for vitio-net etc.)
     - name: Copy base image to libvirt directory
       copy:
         dest: "{{ libvirt_pool_dir }}/{{ base_image_name_no_extension }}-{{ item }}.qcow2"
@@ -18,7 +19,7 @@
         remote_src: yes
         mode: 0660
       register: copy_results
-      when: item not in existing_vms.list_vms
+      when: item not in existing_vms.list_vms # only if the VM is new we need to copy the base image
 
     - name: Configure the image
       command: |

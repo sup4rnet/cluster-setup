@@ -1,6 +1,5 @@
 users:
-  - p4-restart
-  - zhihaow
+  - "{{ restart_users }}"
 
 user_groups: p4-restart
 admin_user: p4-restart

@@ -3,7 +3,12 @@
   debug:
     msg: "Hostname is {{ ansible_hostname }}. Connected as {{ ansible_user }}"
 
-- name: Create {{ users }} and add to p4 group
+- name: Combine group and host vars for variable 'users'
+  set_fact:
+    users: "{{ users + host_users }}"
+  when: host_users is defined
+
+- name: Create users and add to p4 group
   ansible.builtin.user:
     name: "{{ item }}"
     shell: /bin/bash

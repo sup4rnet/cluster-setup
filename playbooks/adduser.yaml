@@ -1,0 +1,31 @@
+# create VM for user
+- name: Provision KVM VMs - bridged on dataplane network
+  hosts: servers
+  become: true
+
+  vars:
+    reconfigure_running_vms: false  # force re-define existing libvirt VMs (with shutdown)
+
+  roles:
+    - ../roles/kvm-debian-bridged-net-pre
+    - ../roles/kvm_provision
+
+
+# Bootstrap user on P4 switches
+- name: Configure environment for P4 switch
+  become: true
+  hosts: p4switches  
+  roles:
+    - ../roles/bootstrap
+    - ../roles/netplan
+    - ../roles/tofino-config
+    
+
+# Bootstrap VM environemnt
+- name: Bootstrap VMs environment
+  become: true
+  hosts: 
+    - vms
+  roles:
+    - ../roles/bootstrap
+    - ../roles/netplan    
