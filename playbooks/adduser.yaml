@@ -42,7 +42,7 @@
       ansible.builtin.user:
         name: "{{ item }}"
         shell: /bin/bash
-        password: "{{ 'ubuntu' | password_hash('sha512', 'mysecretsalt') }}"
+        password: "{{ 'p4-restart' | password_hash('sha512', 'mysecretsalt') }}"
         update_password: on_create
         state: present
       with_items: "{{ users }}"

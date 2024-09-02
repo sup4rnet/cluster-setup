@@ -29,7 +29,7 @@
       - /usr/local/bin/p4-build
       - /usr/bin/pkill bf_switchd
 
-- name: Set cpability to network access for python code
+- name: Set capability to network access for python code
   community.general.capabilities:
     path: /usr/bin/python3.8
     capability: cap_net_raw,cap_net_admin=eip
