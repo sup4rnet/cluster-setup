@@ -29,3 +29,33 @@
   roles:
     - ../roles/bootstrap
     - ../roles/netplan    
+
+# create user on server and add to webapp db
+- name: Configure user on servers
+  become: true
+  hosts: restsrv01
+  tags:
+    - run
+  tasks:
+
+    - name: Create server users
+      ansible.builtin.user:
+        name: "{{ item }}"
+        shell: /bin/bash
+        password: "{{ 'ubuntu' | password_hash('sha512', 'mysecretsalt') }}"
+        update_password: on_create
+        state: present
+      with_items: "{{ users }}"
+ 
+    - name: Check user db exists
+      stat:
+        path: "{{ tofino_rsvp_install_dir }}/webapp/.data/users.csv"
+      register: user_db
+    
+    # NOTE: restart_users only here. These are the users that will be added to the webapp db
+    - name: "Adding Tofino users to webapp db: {{ tofino_rsvp_install_dir }}/webapp"
+      ansible.builtin.lineinfile:
+        path: "{{ tofino_rsvp_install_dir }}/webapp/.data/users.csv"
+        line: "{{ item }}"
+      with_items: "{{ restart_users }}"
+      when: user_db.stat.exists

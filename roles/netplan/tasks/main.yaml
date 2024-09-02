@@ -5,6 +5,4 @@
     src: "{{ group_names[0] }}/01-netcfg.yaml.j2"
     dest: /etc/netplan/01-netcfg.yaml
   notify:
-    - Apply netplan (run manually on the VM if not triggered)
-  tags:
-    - run
+    - Apply netplan (run manually on the VM if not triggered)  
