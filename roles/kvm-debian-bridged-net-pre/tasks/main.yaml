@@ -72,6 +72,6 @@
   lineinfile:
     path: /etc/nsswitch.conf
     regexp: '^hosts:'
-    line: 'hosts:          files mdns4_minimal [NOTFOUND=return] libvirt dns myhostname mymachines'
+    line: 'hosts:          files mdns4_minimal libvirt libvirt_guest dns myhostname mymachines [NOTFOUND=return]'
 
 
