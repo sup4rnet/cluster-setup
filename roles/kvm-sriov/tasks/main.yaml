@@ -1,3 +1,11 @@
+# Prerequisite: 
+# script assumes SR-IOV and IOMMU is enabled in the BIOS and in grub boot options
+
+- name: Add line to /etc/apparmor.d/abstractions/libvirt-qemu (fix qemu problem)
+  lineinfile:
+    path: /etc/apparmor.d/abstractions/libvirt-qemu
+    line: "/dev/vfio/* rw,"
+
 - name: Save scripts to create SR-IOV VFs (only debug puroposes)
   template:
     src: create_vfs.sh.j2

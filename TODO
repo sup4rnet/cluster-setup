@@ -12,6 +12,9 @@ P4:
 
 - service runs as root ...why? ssh keys should be geenrated for root...
 
+
+Add to documentation how to fix this:
+
 When using network pools we get the following error on DEbian
 
 error: Failed to start domain 'restsrv01-smartdata01' error: internal error: qemu unexpectedly closed the monitor: 2024-10-23T15:15:42.610879Z qemu-system-x86_64: -device {"driver":"vfio-pci","host":"0000:86:01.0","id":"hostdev0","bus":"pci.10","addr":"0x0"}: vfio 0000:86:01.0: failed to open /dev/vfio/165: Permission denied
