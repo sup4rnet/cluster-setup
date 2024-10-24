@@ -155,6 +155,14 @@
         <address type='pci' domain='0x0000' bus='{{"0x%.2x" | format( loop.index + 6 ) }}' slot='0x00' function='0x0'/>
       </interface>
     {% endfor %}
+    {% if sriov_net is defined %}
+      {% for s in sriov_net %}
+      <interface type='network'>
+        <source network="{{ s.name }}">
+        </source>
+      </interface>
+      {% endfor %}
+    {% endif %}  
     <serial type='pty'>
       <source path='/dev/pts/3'/>
       <target type='isa-serial' port='0'>

@@ -4,3 +4,9 @@ vms:
   - restvm-ojasson-01
 
 tofino_rsvp_install_dir: /opt/tofino-rsvp
+
+sriov:
+  - name: sr-iov-net0-100G-E810-C
+    pf_iface: ens5f0
+  - name: sr-iov-net1-100G-E810-C
+    pf_iface: ens5f1

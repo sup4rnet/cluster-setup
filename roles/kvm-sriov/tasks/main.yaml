@@ -1,0 +1,29 @@
+- name: Save scripts to create SR-IOV VFs (only debug puroposes)
+  template:
+    src: create_vfs.sh.j2
+    dest: /tmp/create_vfs.sh
+  with_items: "{{ sriov }}"
+
+- name: Create SR-IOV devices on host
+  shell: "{{ lookup('template', 'create_vfs.sh.j2') }}"
+  with_items: "{{ sriov }}"
+
+- name: Define a SR-IOV network pools
+  community.libvirt.virt_net:
+    command: define
+    name: "{{ item['name'] }}"
+    xml: '{{ lookup("template", "sriov_network_pool.xml.j2") }}'
+  with_items: "{{ sriov }}"
+
+- name: Ensure network started
+  community.libvirt.virt_net:
+    name: "{{ item['name'] }}"
+    state: active
+  with_items: "{{ sriov }}"
+
+- name: Autostart network
+  community.libvirt.virt_net:
+    name: "{{ item['name'] }}"
+    autostart: yes
+  with_items: "{{ sriov }}"
+

@@ -10,7 +10,7 @@ os_environment:
 sde_path: "{{ sde_install }}/bin"
 
 ansible_python_interpreter: /usr/bin/python3
-
+vm_libvirt_defintions_dir: /opt/vms
 p4_restart_group: p4-restart # group name for p4-restart users
 restart_install_dir: "/home/{{ ansible_user }}/.restart-super"
 ssh_auth_config: "{{ restart_install_dir }}/ssh_authorized_user"

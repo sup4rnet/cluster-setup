@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Create VFs for the specified PF
+#make sure we are root
+if [ "$(id -u)" != "0" ]; then
+    echo "Sorry, you are not root."
+    exit 1
+fi
+
+# echo "Inserting pci-stub module into kernel..."
+# modprobe pci_stub
+# lsmod | grep pci
+
+    
+echo "Getting number of VFs for {{ item.pf_iface }} ..."
+NUM_VFS=$(cat /sys/class/net/{{ item.pf_iface }}/device/sriov_numvfs | tr -d '\n')
+AVAIL_VFS=$(ip a | grep "{{ item.pf_iface }}v.*" | wc -l | tr -d '\n')
+
+if (( $AVAIL_VFS == 0 )) ; then
+    
+    NEW_NUM_VFS=$(( NUM_VFS * 2 ))
+    echo "Creating $NEW_NUM_VFS VFs for {{ item.pf_iface }}..."
+    echo $NEW_NUM_VFS > /sys/class/net/{{ item.pf_iface }}/device/sriov_numvfs
+    # make change persistent after reboot
+    echo "w /sys/class/net/{{ item.pf_iface }}/device/sriov_numvfs - - - - 4" >> /etc/tmpfiles.d/sriov.conf
+
+else
+    
+    echo "VFs already created for {{ item.pf_iface }}..."
+
+fi
+    
+# print the VFs available and return value of created VFs
+lspci | grep net
+
+

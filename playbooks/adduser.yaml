@@ -7,6 +7,7 @@
     reconfigure_running_vms: false  # force re-define existing libvirt VMs (with shutdown)
 
   roles:
+    - ../roles/kvm-pre
     - ../roles/kvm-debian-bridged-net-pre
     - ../roles/kvm_provision
 

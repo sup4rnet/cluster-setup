@@ -12,6 +12,7 @@
 
     # TODO: this had a native way for doing it (read somewhere in the docs for vitio-net etc.)
     - name: Copy base image to libvirt directory
+      become: true
       copy:
         dest: "{{ libvirt_pool_dir }}/{{ base_image_name_no_extension }}-{{ item }}.qcow2"
         src: "{{ libvirt_pool_dir }}/{{ base_image_name_no_extension }}.qcow2"
@@ -28,10 +29,12 @@
         --root-password password:{{ vm_root_pass }}
       when: reconfigure_running_vms
 
-    - name: show templating results
-      debug:
-        msg: "{{ lookup('template', 'vm-p4-sde.xml.j2') }}"
-
+    - name: write xml template for VM on remote host
+      become: true
+      template:
+        src: vm-p4-sde.xml.j2
+        dest: "{{ vm_libvirt_defintions_dir }}/{{ item }}.xml"
+      when: reconfigure_running_vms or item not in existing_vms.list_vms
 
     - name: Define vm
       community.libvirt.virt:

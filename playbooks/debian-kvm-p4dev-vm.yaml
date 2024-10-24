@@ -1,10 +1,52 @@
-- name: Provision KVM VMs - bridged on dataplane network
+# 
+# Run with --tags option to run specific tasks
+#
+#       ansible-playbook -i inventory.yaml ./playbooks/debian-kvm-p4dev-vm.yaml --tags sriov 
+#
+
+- name: Verify dependencies
   hosts: servers
   become: true
+  tags: [pre]
+  roles:
+    - ../roles/kvm-pre
 
-  vars:
-    reconfigure_running_vms: false  # force re-define existing libvirt VMs (with shutdown)
 
+- name: Configure dataplane network access for KVM
+  hosts: servers
+  become: true
+  tags: [network]
   roles:
     - ../roles/kvm-debian-bridged-net-pre
+
+
+- name: Configure SR-IOV on libvirt
+  hosts: servers
+  become: true
+  tags: [sriov]
+  roles:
+    - ../roles/kvm-sriov
+
+
+- name: Provision VMs
+  hosts: servers
+  become: true
+  vars:
+    reconfigure_running_vms: true  # force re-define existing libvirt VMs (with shutdown)
+  tags: [vms]
+  roles:
     - ../roles/kvm_provision
+
+
+- name: Provision VMs, add bridge interface, and configure SR-IOV
+  hosts: servers
+  become: true
+  vars:
+    reconfigure_running_vms: true 
+  tags: [all]
+  roles:
+    - ../roles/kvm-pre
+    - ../roles/kvm-debian-bridged-net-pre
+    - ../roles/kvm-sriov
+    - ../roles/kvm_provision
+    

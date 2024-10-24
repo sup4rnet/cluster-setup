@@ -1,6 +1,13 @@
+# TODO : should be same format as 
 dataplane_ipv4: 
   - 10.10.0.11/24
   - 10.10.0.12/24
+
+sriov_net:
+  - name: sr-iov-net0-100G-E810-C
+    ip: 
+  - name: sr-iov-net1-100G-E810-C
+    ip: 
 
 # NOTE: this must be a list or it will fail
 host_users: 

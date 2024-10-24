@@ -1,26 +1,7 @@
 - name: Ensure requirements in place
   package:
     name:
-      - libguestfs-tools
-      - python3-libvirt
-      - python3-lxml
-      - libnss-libvirt
-      - libvirt-daemon-system
-      - qemu-system
       - bridge-utils
-    state: present
-
-- name: Start service libvirt
-  service:
-    name: libvirtd
-    state: started
-
-- name: Add admin user to libvirt group
-  become: true
-  ansible.builtin.user:
-    name: "{{ ansible_user_id }}"
-    groups: libvirt
-    append: yes
     state: present
 
 - name: Add bridge
@@ -67,11 +48,4 @@
     name: "{{ item['libvirt_bridged_net_name'] }}"
     autostart: yes
   with_items: "{{ bridges }}"
-
-- name: Configure libvirt VM name resolution
-  lineinfile:
-    path: /etc/nsswitch.conf
-    regexp: '^hosts:'
-    line: 'hosts:          files mdns4_minimal libvirt libvirt_guest dns myhostname mymachines [NOTFOUND=return]'
-
 
