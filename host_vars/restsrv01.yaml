@@ -14,8 +14,12 @@ sriov:
     vms:
       - restsrv01-smartdata01
       - restsrv01-smartdata02
+      - restvm-ojasson-01
+      - restvm-dauin-01
   - name: sr-iov-net1-100G-E810-C
     pf_iface: ens5f1
     vms:
       - restsrv01-smartdata01
       - restsrv01-smartdata02
+      - restvm-ojasson-01
+      - restvm-dauin-01

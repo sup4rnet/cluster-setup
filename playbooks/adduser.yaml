@@ -8,7 +8,9 @@
 
   roles:
     - ../roles/kvm-pre
-    - ../roles/kvm-debian-bridged-net-pre
+    # - ../roles/kvm-debian-bridged-net-pre
+    # TODO test this
+    - ../roles/kvm-sriov
     - ../roles/kvm_provision
 
 
