@@ -1,0 +1,21 @@
+#!/bin/bash
+
+
+# make sure we are root
+if [ "$(id -u)" != "0" ]; then
+    echo "Sorry, you are not root."
+    exit 1
+fi
+
+
+# Get number of VFs for the specified PF
+PF="{{ item['bridge_host_iface'] }}"
+
+
+# if siov_numvfs is set, echo a suffix v0, v1, v2, etc. depending on the number of SR-IOV VFs
+# the last one will be used for the bridge
+if [ -e /sys/class/net/$PF/device/sriov_numvfs ]; then
+    NUM_VFS=$(cat /sys/class/net/$PF/device/sriov_numvfs | tr -d '\n')
+    LAST_VF=$((NUM_VFS - 1))
+    echo "v${LAST_VF}"
+fi

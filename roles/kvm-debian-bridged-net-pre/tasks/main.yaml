@@ -15,19 +15,38 @@
     state: present
   with_items: "{{ bridges }}"
 
-- name: Add bridge-slave connection
+- name: Run script to get bridge slave interface suffix (none if no SR-IOV defined)
+  shell: "{{ lookup('template', 'get-slave-if.sh.j2') }}"
+  register: bridge_host_iface_suffix
+  with_items: "{{ bridges }}"
+  tags: ["run"]
+
+- name: Debug name
+  debug:
+    msg: "Detected last VF {{ (bridge_host_iface_suffix.results | first).stdout }}"
+  tags: ["run"]
+
+# - name: Define variables
+#   set_fact:
+#     bridge_host_iface_suffix: "{{ (bridge_host_iface_suffix.results | first).stdout }}"
+
+- name: Add bridge ports
   ansible.builtin.nmcli:
     conn_name: bridge-slave-{{ item['bridge_host_iface'] }}
-    ifname: "{{ item['bridge_host_iface'] }}"
+    ifname: "{{ item['bridge_host_iface'] }}{{ (bridge_host_iface_suffix.results | first).stdout }}"
     slave_type: bridge
     type: bridge-slave
     master: "{{ item['bridge_name'] }}"
     state: present
   with_items: "{{ bridges }}"
+  tags: ["run"]
 
-- name: Set connection up
+
+- name: Relaod configuration and set bridge ports up
   ansible.builtin.command:
-    cmd: nmcli con up "bridge-slave-{{ item['bridge_host_iface'] }}"
+    cmd: |
+      nmcli con reload "bridge-slave-{{ item['bridge_host_iface'] }}"
+      nmcli con up "bridge-slave-{{ item['bridge_host_iface'] }}"
   with_items: "{{ bridges }}"
 
 - name: Define a new bridged network

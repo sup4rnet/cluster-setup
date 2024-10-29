@@ -16,7 +16,8 @@ echo "Getting number of VFs for {{ item.pf_iface }} ..."
 NUM_VFS=$(cat /sys/class/net/{{ item.pf_iface }}/device/sriov_numvfs | tr -d '\n')
 AVAIL_VFS=$(ip a | grep "{{ item.pf_iface }}v.*" | wc -l | tr -d '\n')
 
-if (( $AVAIL_VFS == 0 )) ; then
+# last VF is used for bridge
+if (( $AVAIL_VFS == 1 )) ; then
     
     NEW_NUM_VFS=$(( NUM_VFS * 2 ))
     echo "Creating $NEW_NUM_VFS VFs for {{ item.pf_iface }}..."

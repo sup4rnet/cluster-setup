@@ -1,25 +1,21 @@
 vms:
   - restsrv01-smartdata01
-  # - restvm-dauin-01
-  # - restvm-ojasson-01
-  # - restsrv01-smartdata02
+  - restvm-dauin-01
+  - restvm-ojasson-01
+  - restsrv01-smartdata02
 
 tofino_rsvp_install_dir: /opt/tofino-rsvp
 
 # each item is a pool of network adapters in libvirt, associated with a physical interface (PF)
 # and with a list of VMs that will use the SR-IOV network adapter
 sriov:
-  - name: sr-iov-net0-100G-E810-C
+  - name: sr-iov-net0-100G-E810-C # this pool must be defined using kvm-sriov task
     pf_iface: ens5f0
     vms:
       - restsrv01-smartdata01
       - restsrv01-smartdata02
-      - restvm-ojasson-01
-      - restvm-dauin-01
   - name: sr-iov-net1-100G-E810-C
     pf_iface: ens5f1
     vms:
       - restsrv01-smartdata01
       - restsrv01-smartdata02
-      - restvm-ojasson-01
-      - restvm-dauin-01

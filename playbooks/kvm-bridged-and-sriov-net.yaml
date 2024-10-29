@@ -1,0 +1,38 @@
+# 
+# This playbooks configures SR-IOV on the VMs which need it.
+# In order not to break compatibility with the other VMs, 
+# it maps the bridged interfaces on one of the SR-IOV VFs.
+
+# Run with --tags option to run specific tasks
+#
+#       ansible-playbook -i inventory.yaml ./playbooks/debian-kvm-p4dev-vm.yaml --tags sriov 
+#
+
+- name: Verify dependencies
+  hosts: servers
+  become: true
+  roles:
+    - ../roles/kvm-pre
+
+- name: Configure SR-IOV on libvirt
+  hosts: servers
+  become: true
+  roles:
+    - ../roles/kvm-sriov
+
+
+- name: Create bridges on top of SR-IOV VFs
+  hosts: servers
+  become: true
+  tags: [bridges]    
+  roles:
+    - ../roles/kvm-debian-bridged-net-pre
+
+- name: Provision VMs
+  hosts: servers
+  become: true
+  vars:
+    reconfigure_running_vms: true  # force re-define existing libvirt VMs (with shutdown)
+  tags: [vms]
+  roles:
+    - ../roles/kvm_provision    
