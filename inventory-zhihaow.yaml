@@ -19,18 +19,20 @@ servers:
 # vms for configurations. They must be provisioned and started first!
 vms:
     hosts:
-        restsrv01-smartdata01:
-            ansible_host: restsrv01-smartdata01
+        # restsrv01-smartdata01:
+        #     ansible_host: restsrv01-smartdata01
+        #     ansible_user: p4-restart
+        # restvm-dauin-01:
+        #     ansible_host: restvm-dauin-01
+        #     ansible_user: p4-restart
+        # restvm-ojasson-01:
+        #     ansible_host: restvm-ojasson-01
+        #     ansible_user: p4-restart
+        restvm-mamanj-01:
+            ansible_host: restvm-mamanj-01
             ansible_user: p4-restart
-        restvm-dauin-01:
-            ansible_host: restvm-dauin-01
-            ansible_user: p4-restart
-        restvm-ojasson-01:
-            ansible_host: restvm-ojasson-01
-            ansible_user: p4-restart
-        
-        restsrv01-smartdata02:
-            ansible_host: restsrv01-smartdata02
-            ansible_user: p4-restart
+        # restsrv01-smartdata02:
+        #     ansible_host: restsrv01-smartdata02
+        #     ansible_user: p4-restart
     vars:
         ansible_ssh_common_args: '-o ProxyCommand="ssh zhihaow@restsrv01.polito.it -W %h:%p"'

@@ -87,4 +87,12 @@ Make sure ot pick an IP address NOT listed below:
 | `10.10.0.101` | `restsrv01` | Dataplane port `ens5f1@br1` | "
 | `10.10.0.11` | `restsrv01-smartdata01` | User VM | zhihao.wang@polito.it
 | `10.10.0.12` | `restsrv01-smartdata01` | User VM | zhihao.wang@polito.it
+| `10.10.0.13` | `restvm-dauin-01` | User VM | asacco, aangi
+| `10.10.0.14` | `restvm-dauin-01` | User VM | asacco, aangi
+| `10.10.0.15` | `restvm-ojasson-01` | User VM | s321275@studenti.polito.it
+| `10.10.0.16` | `restvm-ojasson-01` | User VM | s321275@studenti.polito.it
+| `10.10.0.17` | `restsrv01-smartdata02` | User VM | zhihao.wang@polito.it
+| `10.10.0.18` | `restsrv01-smartdata02` | User VM | zhihao.wang@polito.it
+| `10.10.0.19` | `restvm-mamanj-01` | User VM | amanj.malaei@studenti.polito.it
+| `10.10.0.20` | `restvm-mamanj-01` | User VM | amanj.malaei@studenti.polito.it
 
