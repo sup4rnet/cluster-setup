@@ -3,6 +3,7 @@ vms:
   - restvm-dauin-01
   - restvm-ojasson-01
   - restsrv01-smartdata02
+  - restvm-mamanj-01
 
 tofino_rsvp_install_dir: /opt/tofino-rsvp
 

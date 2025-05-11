@@ -1,0 +1,8 @@
+dataplane_ipv4: 
+  - 10.10.0.19/24
+  - 10.10.0.20/24
+
+# NOTE: this must be a list (even with single entry) or it will fail
+host_users: 
+  - mamanj
+  

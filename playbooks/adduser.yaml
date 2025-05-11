@@ -6,11 +6,13 @@
   vars:
     reconfigure_running_vms: false  # force re-define existing libvirt VMs (with shutdown)
 
+  tags:
+    - kvmconf
   roles:
     - ../roles/kvm-pre
-    # - ../roles/kvm-debian-bridged-net-pre
+    - ../roles/kvm-debian-bridged-net-pre
     # TODO test this
-    - ../roles/kvm-sriov
+    # - ../roles/kvm-sriov
     - ../roles/kvm_provision
 
 
@@ -19,6 +21,8 @@
 - name: Configure environment for P4 switch
   become: true
   hosts: p4switches  
+  tags:
+    - p4conf
   roles:
     - ../roles/bootstrap
     # - ../roles/netplan no need of this whenever we add a new user
@@ -30,6 +34,8 @@
   become: true
   hosts: 
     - vms
+  tags:
+    - vmboot
   roles:
     - ../roles/bootstrap
     - ../roles/netplan    
@@ -39,7 +45,7 @@
   become: true
   hosts: restsrv01
   tags:
-    - run
+    - srvuseradd
   tasks:
 
     - name: Create server users
