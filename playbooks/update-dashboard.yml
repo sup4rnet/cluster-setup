@@ -1,0 +1,8 @@
+# This playbook just updates on the switches the mechanism to enforce SSH permissions. 
+# TODO: can integrate here also the dashboard deployment on host...
+
+- name: Update dashboard
+  hosts: p4switches
+
+  roles:
+    - ../roles/tofino-install-reservation-sys

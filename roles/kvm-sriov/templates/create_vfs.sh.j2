@@ -23,7 +23,7 @@ if (( $AVAIL_VFS == 1 )) ; then
     echo "Creating $NEW_NUM_VFS VFs for {{ item.pf_iface }}..."
     echo $NEW_NUM_VFS > /sys/class/net/{{ item.pf_iface }}/device/sriov_numvfs
     # make change persistent after reboot
-    echo "w /sys/class/net/{{ item.pf_iface }}/device/sriov_numvfs - - - - 4" >> /etc/tmpfiles.d/sriov.conf
+    echo "w /sys/class/net/{{ item.pf_iface }}/device/sriov_numvfs - - - - $NEW_NUM_VFS" >> /etc/tmpfiles.d/sriov.conf
 
 else
     

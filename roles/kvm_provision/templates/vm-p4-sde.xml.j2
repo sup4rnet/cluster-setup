@@ -148,6 +148,7 @@
       <alias name='net0'/>
       <address type='pci' domain='0x0000' bus='0x01' slot='0x00' function='0x0'/>
     </interface>
+    {% if bridges is defined %}
     {% for b in bridges %}
       <interface type='bridge'>
         <source bridge="{{ b.bridge_name }}"/>
@@ -155,6 +156,7 @@
         <address type='pci' domain='0x0000' bus='{{"0x%.2x" | format( loop.index + 6 ) }}' slot='0x00' function='0x0'/>
       </interface>
     {% endfor %}
+    {% endif %}
     {% if sriov is defined %}
       {% for s in sriov %}
         {% if item in s.vms %}

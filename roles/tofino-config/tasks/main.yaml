@@ -17,7 +17,7 @@
     path: "{{ sde }}/p4studio/CMakeLists.txt"
     mode: 0644
 
-- name: Allow the {{ p4_restart_group }} group to run sudo apt
+- name: Restrict the {{ p4_restart_group }} group to following sudo commands
   community.general.sudoers:
     name: p4-restart-tenants-permissions
     group: "{{ p4_restart_group}}"
@@ -56,10 +56,20 @@
     - Restart sshd
 
 - name: Copy enable script to {{ restart_install_dir }}
+  become: false # here we login with p4-restart user so no need sudo...
   ansible.builtin.template:
     src: "enable_ssh_access.sh.j2"
     dest: "{{ restart_install_dir }}/enable_ssh_access.sh"
     mode: 0755
+  tags: ["run"]
+
+- name: Run enable_ssh_access.sh as a cronjob every minute
+  ansible.builtin.cron:
+    name: "enable_ssh_access"
+    minute: "*"
+    job: "{{ restart_install_dir }}/enable_ssh_access.sh"
+  tags: ["run"]
+  
 
 - name: Create directory for extra modules if does not exists
   ansible.builtin.file:

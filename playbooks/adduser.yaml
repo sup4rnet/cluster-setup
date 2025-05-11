@@ -15,13 +15,14 @@
 
 
 # Bootstrap user on P4 switches
+# TODO this should actually just create the user...netplan should be already there
 - name: Configure environment for P4 switch
   become: true
   hosts: p4switches  
   roles:
     - ../roles/bootstrap
-    - ../roles/netplan
-    - ../roles/tofino-config
+    # - ../roles/netplan no need of this whenever we add a new user
+    # - ../roles/tofino-config also no need of this, does not depend on specific users
     
 
 # Bootstrap VM environemnt

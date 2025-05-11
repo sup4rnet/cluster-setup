@@ -1,0 +1,57 @@
+- name: Dependencies
+  become: true
+  package:
+    name: 
+      - "members"
+      - "logrotate"
+      - "jq"
+    state: present
+
+- name: Create home directory .restart in {{ ansible_user }} user
+  ansible.builtin.file:
+    path: "{{ restart_install_dir }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+
+- name: Create deny-ssh group
+  ansible.builtin.group:
+    name: deny-ssh
+    state: present
+
+- name: Add DenyGroups to sshd config
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config.d/10-deny-ssh.conf
+    line: 'DenyGroups deny-ssh'
+    state: present
+    create: true
+  notify:
+    - Restart sshd
+
+- name: Copy enable script to {{ restart_install_dir }}
+  ansible.builtin.template:
+    src: "enable_ssh_access.sh.j2"
+    dest: "{{ restart_install_dir }}/enable_ssh_access.sh"
+    mode: 0755
+  tags: ["run"]
+
+- name: Run enable_ssh_access.sh as a cronjob every minute
+  ansible.builtin.cron:
+    name: "enable_ssh_access"
+    minute: "*"
+    job: "{{ restart_install_dir }}/enable_ssh_access.sh"
+  tags: ["run"]
+  
+- name: Configure logrotate for log directory
+  become: true
+  ansible.builtin.template:
+    src: "logrotate.conf.j2"
+    dest: /etc/logrotate.d/tofino-ssh-access
+    mode: 0644
+  tags: ["run"]
+  
+- name: Test logrotate configuration
+  become: true
+  command: logrotate -d /etc/logrotate.conf
+  changed_when: false

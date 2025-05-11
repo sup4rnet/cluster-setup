@@ -8,7 +8,7 @@ network:
       dhcp4: yes
       dhcp-identifier: mac
     {% for index in range(dataplane_ipv4|length) %}
-    {{- bridge_vm_guest_iface[index] }}:
+    {{- dataplane_vm_iface[index] }}:
       dhcp4: no
       addresses:
         - "{{ dataplane_ipv4[index] }}"

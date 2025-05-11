@@ -1,4 +1,4 @@
-bridge_vm_guest_iface: 
+dataplane_vm_iface: 
   - enp7s0
   - enp8s0
 
