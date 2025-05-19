@@ -9,7 +9,7 @@ p4switches:
             ansible_host: rest-bfsw02.polito.it
             ansible_user: p4-restart
 
-bfsw02:
+rest-bfsw02:
     hosts:
         rest-bfsw02:
             ansible_host: rest-bfsw02.polito.it

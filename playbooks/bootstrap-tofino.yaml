@@ -1,6 +1,6 @@
 - name: Configure environment for P4 switch
   become: true
-  hosts: bfsw02  # p4switches
+  hosts: rest-bfsw02
   vars:
     dashboard_url: http://restsrv01.polito.it/dashboard
   roles:

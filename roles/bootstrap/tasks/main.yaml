@@ -16,6 +16,7 @@
     password: "{{ 'p4-restart' | password_hash('sha512', 'mysecretsalt') }}"
     update_password: on_create
     state: present
+    append: yes # <---- append to existing groups (do not override sudo...) 
   with_items: "{{ users }}"
 
 - name: Set sudoers for ansible_user
