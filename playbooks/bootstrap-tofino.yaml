@@ -6,4 +6,5 @@
   roles:
     - ../roles/bootstrap
     - ../roles/netplan
-    - ../roles/tofino-config
+    - ../roles/tofino-sde
+    - ../roles/tofino-reservation-sys

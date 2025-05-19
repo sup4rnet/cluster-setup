@@ -4,9 +4,6 @@ network:
   version: 2
   renderer: networkd
   ethernets:
-    enp1s0:
-      dhcp4: yes
-      dhcp-identifier: mac
     {% for index in range(dataplane_ipv4|length) %}
     {{- dataplane_ipv4[index].ifname }}:
       dhcp4: no

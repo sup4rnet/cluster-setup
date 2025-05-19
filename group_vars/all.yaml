@@ -16,7 +16,7 @@ restart_install_dir: "/home/{{ ansible_user }}/.restart-super"
 ssh_auth_config: "{{ restart_install_dir }}/ssh_authorized_user"
 
 restart_users:
-  - p4-restart
+  # - p4-restart this is admin user no need to have here..
   - zhihaow
   - pgiaccone
   - asacco

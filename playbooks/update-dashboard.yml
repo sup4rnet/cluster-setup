@@ -5,4 +5,4 @@
   hosts: p4switches
 
   roles:
-    - ../roles/tofino-install-reservation-sys
+    - ../roles/tofino-reservation-sys

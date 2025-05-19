@@ -6,7 +6,7 @@
 - name: Combine group and host vars for variable 'users'
   set_fact:
     users: "{{ users + host_users }}"
-  when: host_users is defined
+  when: host_users is defined # TODO ugly! this ensures running just on hosts, e.g., VMs
 
 - name: Create users and add to p4 group
   ansible.builtin.user:
