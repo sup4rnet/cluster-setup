@@ -21,8 +21,8 @@ restart_users:
   - pgiaccone
   - asacco
   - aangi
-  - ojasson
   - mamanj
+  - mspina
 
 users:
   - ubuntu # TODO remove
