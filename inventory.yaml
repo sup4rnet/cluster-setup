@@ -31,5 +31,9 @@ vms:
         restvm-dauin-01:
             ansible_host: restvm-dauin-01
             ansible_user: p4-restart
+	restvm-mspina-01:
+            ansible_host: restvm-mspina-01
+            ansible_user: p4-restart
+	
     vars:
-        ansible_ssh_common_args: '-o ProxyCommand="ssh alessandro@restsrv01.polito.it -W %h:%p"'
+        ansible_ssh_common_args: '-o ProxyCommand="ssh ubuntu@restsrv01.polito.it -W %h:%p"'
