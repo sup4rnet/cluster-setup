@@ -1,0 +1,228 @@
+Metadata-Version: 2.4
+Name: p4tenant
+Version: 0.1.0
+Summary: CLI tool for managing P4-RESTART tenants
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: typer[all]>=0.9.0
+Requires-Dist: rich>=13.0.0
+Requires-Dist: ruamel.yaml>=0.18.0
+Requires-Dist: pydantic>=2.0.0
+
+# p4tenant
+
+CLI tool for managing P4-RESTART tenants. Automates the 5-step tenant onboarding process with automatic IP allocation, YAML editing, and ansible integration.
+
+## Quick Start (No Installation)
+
+Just install `uv` once, then use the wrapper script:
+
+```bash
+brew install uv
+
+# Run from repo root
+./p4tenant-cli list
+./p4tenant-cli add
+./p4tenant-cli ip-status
+```
+
+The wrapper uses `uvx` to run in an isolated environment - nothing pollutes your system Python.
+
+## Alternative: Install Globally
+
+If you prefer having `p4tenant` available system-wide:
+
+```bash
+# Using uv (fastest)
+brew install uv
+cd p4tenant && uv tool install -e .
+
+# Or using pipx
+brew install pipx && pipx ensurepath
+cd p4tenant && pipx install -e .
+
+# Then run from anywhere inside the repo
+p4tenant list
+```
+
+To uninstall: `uv tool uninstall p4tenant` or `pipx uninstall p4tenant`
+
+## Usage
+
+All commands must be run from within the `p4-restart-polito` repository directory.
+
+### Add a new tenant
+
+Interactive mode:
+```bash
+p4tenant add
+```
+
+Non-interactive mode:
+```bash
+p4tenant add -u jdoe -A pgiaccone -y
+```
+
+Options:
+- `-u, --username`: Username for the new tenant
+- `-e, --email`: Email address (optional)
+- `-A, --admin`: Admin user for SSH/ansible operations (prompted if not provided)
+- `-y, --yes`: Skip confirmation prompts
+- `-a, --run-ansible`: Run ansible-playbook after adding
+
+### Remove a tenant
+
+```bash
+p4tenant remove jdoe
+```
+
+Options:
+- `-y, --yes`: Skip confirmation prompts
+
+### List all tenants
+
+```bash
+p4tenant list
+```
+
+Shows all tenants with their configuration status across all 4 files:
+- `users`: In `group_vars/all.yaml` restart_users
+- `vms`: In `host_vars/restsrv01.yaml` vms list
+- `inv`: In `inventory.yaml` vms.hosts
+- `host`: Has `host_vars/restvm-{user}-01.yaml` file
+
+### Show IP allocation status
+
+```bash
+p4tenant ip-status
+```
+
+Shows:
+- IP range and reserved IPs
+- Currently used IPs
+- Available IPs and pairs
+- IP to VM mapping
+
+## What it does
+
+When adding a tenant, the tool:
+
+1. Asks for your admin username (for SSH access to restsrv01)
+2. Validates the tenant username (3-16 chars, lowercase alphanumeric + underscore/hyphen)
+3. Checks the username doesn't already exist
+4. Allocates the next available consecutive IP pair (e.g., 10.10.0.11/24, 10.10.0.12/24)
+5. Updates these files:
+   - `group_vars/all.yaml` - Adds username to `restart_users`
+   - `host_vars/restsrv01.yaml` - Adds VM name to `vms` list
+   - `host_vars/restvm-{user}-01.yaml` - Creates new file with IPs and host_users
+   - `inventory.yaml` - Adds VM to `vms.hosts`
+   - `inventory-{admin}.yaml` - Syncs admin-specific inventory (if not the default admin)
+6. Optionally runs ansible-playbook with a minimal inventory for fast execution
+
+Backups are created in `.p4tenant-backups/` before any file is modified.
+
+## Admin User Support
+
+Each admin has their own inventory file (`inventory-{admin}.yaml`) with:
+- Their SSH username for `restsrv01`
+- Their ProxyCommand for VM access
+
+When you add a tenant:
+- The main `inventory.yaml` is always updated
+- If you're not the default admin (from main inventory), your admin-specific inventory is also synced
+
+This allows multiple admins to work with their own credentials while keeping all inventories in sync.
+
+## Fast Ansible Execution
+
+When running ansible-playbook for a new user, the tool creates a **minimal temporary inventory** containing:
+- The `p4switches` group (both switches)
+- The `servers` group (`restsrv01`) for VM provisioning
+- Only the new VM being added (not all existing VMs)
+
+This avoids processing all existing VMs, making ansible execution much faster.
+
+The temporary inventory:
+- Uses your admin username for SSH connections
+- Is automatically cleaned up after execution
+- Works on Windows, Linux, and macOS
+
+## IP Allocation
+
+- VM IP range: 10.10.0.11 - 10.10.0.100
+- Reserved IPs: .2-.5 (switches), .10, .101 (server)
+- IPs are allocated in consecutive pairs
+- The tool scans existing `host_vars/restvm-*.yaml` files to find used IPs
+
+## Interactive Help
+
+Type `?` at any prompt to see detailed help:
+
+```
+Enter tenant username (? for help): ?
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ Tenant Username                                                              │
+│ The username for the new P4-RESTART tenant.                                  │
+│ Requirements:                                                                │
+│   - 3-16 characters long                                                     │
+│   - Lowercase letters, numbers, underscores, or hyphens                      │
+│   - Must start with a letter                                                 │
+│                                                                              │
+│ This will create:                                                            │
+│   - A VM named restvm-{username}-01                                          │
+│   - User account on the VM                                                   │
+│   - Allocated IP addresses for the dataplane                                 │
+╰──────────────────────────────────────────────────────────────────────────────╯
+```
+
+## Example Session
+
+```
+$ p4tenant add
+
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ Add New P4-RESTART Tenant                                                    │
+│                                                                              │
+│ This wizard will guide you through creating a new tenant.                    │
+│ Type ? at any prompt to see detailed help.                                   │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Select admin user (? for help)
+
+  1. alessandro  new
+  2. pgiaccone   has inventory
+  3. zhihaow     has inventory
+  4. Other (enter manually)
+
+Choice (1): 2
+
+ℹ Operating as admin: pgiaccone
+
+Enter tenant username (? for help): jdoe
+Enter email (optional) (? for help): john.doe@polito.it
+
+Validating...
+✓ Username 'jdoe' is available
+✓ Allocated IPs: 10.10.0.21/24, 10.10.0.22/24
+
+╭────────────────────────────── Changes to apply ──────────────────────────────╮
+│   1.    group_vars/all.yaml           Add 'jdoe' to restart_users            │
+│   2.    host_vars/restsrv01.yaml      Add 'restvm-jdoe-01' to vms list       │
+│   3.    host_vars/restvm-jdoe-01.yaml [NEW] Create with dataplane_ipv4       │
+│   4.    inventory.yaml                Add 'restvm-jdoe-01' to vms.hosts      │
+│   5.    inventory-pgiaccone.yaml      Add 'restvm-jdoe-01' to vms.hosts      │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Apply changes? [y/n]: y
+
+Applying changes...
+✓ Synced inventory-pgiaccone.yaml
+✓ All changes applied successfully
+
+Run ansible-playbook? [y/n]: y
+
+Creating minimal inventory for faster execution...
+Running: ansible-playbook playbooks/adduser.yaml -i /tmp/p4tenant-inv-xyz.yaml
+...
+✓ ansible-playbook completed successfully
+```

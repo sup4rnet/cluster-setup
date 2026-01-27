@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Wrapper script to run p4tenant without installation
+# Uses uv run to execute directly from source (no caching)
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+P4TENANT_DIR="$SCRIPT_DIR/p4tenant"
+
+if command -v uv &> /dev/null; then
+    exec uv run --directory "$P4TENANT_DIR" p4tenant "$@"
+elif command -v pipx &> /dev/null; then
+    exec pipx run --spec "$P4TENANT_DIR" p4tenant "$@"
+else
+    echo "Error: Neither 'uv' nor 'pipx' found." >&2
+    echo "Install one of them:" >&2
+    echo "  brew install uv" >&2
+    echo "  brew install pipx" >&2
+    exit 1
+fi

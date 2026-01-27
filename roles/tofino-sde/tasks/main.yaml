@@ -21,6 +21,7 @@
       - /usr/local/bin/p4
       - /usr/local/bin/p4-build
       - /usr/bin/pkill bf_switchd
+      - /usr/bin/tcpreplay
 
 - name: Set capability to network access for python code
   community.general.capabilities:

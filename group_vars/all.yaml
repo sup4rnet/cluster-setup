@@ -3,9 +3,9 @@ sde_install: "{{ sde }}/install"
 
 os_environment:
   - key: SDE
-    value : "{{ sde }}"
+    value: "{{ sde }}"
   - key: SDE_INSTALL
-    value : "{{ sde_install }}"
+    value: "{{ sde_install }}"
 
 sde_path: "{{ sde_install }}/bin"
 

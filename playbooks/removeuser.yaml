@@ -1,0 +1,192 @@
+---
+# Remove user and associated VMs
+# Usage: ansible-playbook playbooks/removeuser.yaml -i inventory.yaml
+#
+# This playbook will:
+# 1. Delete all VMs containing the username (auto-discovered)
+# 2. Remove user from P4 switches
+# 3. Remove user from webapp database
+# 4. Remove user from physical server
+#
+# After running, manually update:
+# - host_vars/restsrv01.yaml (remove VM from vms list)
+# - host_vars/<vm-name>.yaml (delete file)
+# - inventory.yaml (remove VM entry)
+# - group_vars/all.yaml (remove from restart_users)
+
+# Stage 1: Delete VMs on server
+- name: Delete user VMs
+  hosts: servers
+  become: true
+
+  vars:
+    # From kvm_provision role defaults
+    libvirt_pool_dir: "/var/lib/libvirt/images"
+    base_image_name_no_extension: ubuntu20.04-p4-sde
+
+  vars_prompt:
+    - name: user_to_delete
+      prompt: "Enter username to delete"
+      private: false
+
+    - name: confirm_deletion
+      prompt: "Type 'DELETE' to confirm deletion of user and VMs"
+      private: false
+
+  tags:
+    - vmdelete
+
+  tasks:
+    - name: Abort if not confirmed
+      ansible.builtin.fail:
+        msg: "Deletion not confirmed. Aborting."
+      when: confirm_deletion != "DELETE"
+
+    - name: Get list of all VMs
+      community.libvirt.virt:
+        command: list_vms
+      register: all_vms
+      when: vms_to_delete is not defined
+
+    - name: Find VMs matching username (auto-discovery)
+      ansible.builtin.set_fact:
+        vms_to_delete: "{{ all_vms.list_vms | select('search', user_to_delete) | list }}"
+      when: vms_to_delete is not defined
+
+    - name: Display VMs to be deleted
+      ansible.builtin.debug:
+        msg: "VMs to delete: {{ vms_to_delete }}"
+
+    - name: Warn if no VMs found
+      ansible.builtin.debug:
+        msg: "No VMs found matching '{{ user_to_delete }}'"
+      when: vms_to_delete | length == 0
+
+    - name: Shutdown VMs gracefully
+      community.libvirt.virt:
+        name: "{{ item }}"
+        state: shutdown
+      loop: "{{ vms_to_delete }}"
+      ignore_errors: true
+      when: vms_to_delete | length > 0
+
+    - name: Wait for VMs to shutdown
+      ansible.builtin.pause:
+        seconds: 10
+      when: vms_to_delete | length > 0
+
+    - name: Force destroy VMs if still running
+      community.libvirt.virt:
+        name: "{{ item }}"
+        state: destroyed
+      loop: "{{ vms_to_delete }}"
+      ignore_errors: true
+      when: vms_to_delete | length > 0
+
+    - name: Undefine VMs from libvirt
+      community.libvirt.virt:
+        name: "{{ item }}"
+        command: undefine
+      loop: "{{ vms_to_delete }}"
+      when: vms_to_delete | length > 0
+
+    - name: Delete VM disk images
+      ansible.builtin.file:
+        path: "{{ libvirt_pool_dir }}/{{ base_image_name_no_extension }}-{{ item }}.qcow2"
+        state: absent
+      loop: "{{ vms_to_delete }}"
+      when: vms_to_delete | length > 0
+
+    - name: Delete VM XML definitions
+      ansible.builtin.file:
+        path: "{{ vm_libvirt_defintions_dir }}/{{ item }}.xml"
+        state: absent
+      loop: "{{ vms_to_delete }}"
+      when: vms_to_delete | length > 0
+
+    - name: Set user_to_delete as fact for subsequent plays
+      ansible.builtin.set_fact:
+        user_to_delete: "{{ user_to_delete }}"
+      delegate_to: localhost
+      delegate_facts: true
+
+
+# Stage 2: Remove user from P4 switches
+- name: Remove user from P4 switches
+  hosts: p4switches
+  become: true
+  tags:
+    - p4conf
+
+  tasks:
+    - name: Get user_to_delete from localhost
+      ansible.builtin.set_fact:
+        user_to_delete: "{{ hostvars['localhost']['user_to_delete'] }}"
+
+    - name: Remove user from p4-restart group
+      ansible.builtin.user:
+        name: "{{ user_to_delete }}"
+        groups: ""
+        append: false
+      ignore_errors: true
+
+    - name: Delete user account
+      ansible.builtin.user:
+        name: "{{ user_to_delete }}"
+        state: absent
+        remove: true
+
+
+# Stage 3: Remove user from webapp database
+- name: Remove user from webapp database
+  hosts: restsrv01
+  become: true
+  tags:
+    - webappdb
+
+  tasks:
+    - name: Get user_to_delete from localhost
+      ansible.builtin.set_fact:
+        user_to_delete: "{{ hostvars['localhost']['user_to_delete'] }}"
+
+    - name: Check webapp user db exists
+      ansible.builtin.stat:
+        path: "{{ tofino_rsvp_install_dir }}/webapp/.data/users.csv"
+      register: user_db
+
+    - name: Remove user from webapp database
+      ansible.builtin.lineinfile:
+        path: "{{ tofino_rsvp_install_dir }}/webapp/.data/users.csv"
+        line: "{{ user_to_delete }}"
+        state: absent
+      when: user_db.stat.exists
+
+
+# Stage 4: Remove user from physical server
+- name: Remove user from server
+  hosts: restsrv01
+  become: true
+  tags:
+    - srvuserdelete
+
+  tasks:
+    - name: Get user_to_delete from localhost
+      ansible.builtin.set_fact:
+        user_to_delete: "{{ hostvars['localhost']['user_to_delete'] }}"
+
+    - name: Delete user account from server
+      ansible.builtin.user:
+        name: "{{ user_to_delete }}"
+        state: absent
+        remove: true
+
+    - name: Display completion message
+      ansible.builtin.debug:
+        msg: |
+          User '{{ user_to_delete }}' has been removed from all systems.
+
+          Remember to manually update configuration files:
+          - host_vars/restsrv01.yaml (remove VM from vms list)
+          - host_vars/<vm-name>.yaml (delete file)
+          - inventory.yaml (remove VM entry)
+          - group_vars/all.yaml (remove from restart_users)

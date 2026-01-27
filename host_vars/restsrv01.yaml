@@ -5,6 +5,7 @@ vms:
   - restvm-mamanj-01
   - restvm-mspina-01
 
+  - restvm-mspina-02
 tofino_rsvp_install_dir: /opt/tofino-rsvp
 
 # each item is a pool of network adapters in libvirt, associated with a physical interface (PF)

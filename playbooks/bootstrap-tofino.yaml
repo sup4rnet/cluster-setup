@@ -1,6 +1,6 @@
 - name: Configure environment for P4 switch
   become: true
-  hosts: rest-bfsw02
+  hosts: rest-bfsw02 # TODO here need to change to all switch when want to operate on both
   vars:
     dashboard_url: http://restsrv01.polito.it/dashboard
   roles:

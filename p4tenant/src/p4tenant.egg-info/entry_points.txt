@@ -1,0 +1,2 @@
+[console_scripts]
+p4tenant = p4tenant.cli:app

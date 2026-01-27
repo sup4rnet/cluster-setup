@@ -1,0 +1,22 @@
+---
+p4switches:
+    hosts:
+        rest-bfsw01:
+            ansible_host: rest-bfsw01.polito.it
+            ansible_user: p4-restart
+        rest-bfsw02:
+            ansible_host: rest-bfsw02.polito.it
+            ansible_user: p4-restart
+servers:
+    hosts:
+        restsrv01:
+            ansible_host: restsrv01.polito.it
+            ansible_user: alessandro
+vms:
+    hosts:
+        restvm-mspina-01:
+            ansible_host: restvm-mspina-01
+            ansible_user: p4-restart
+    vars:
+        ansible_ssh_common_args: -o ProxyCommand="ssh 
+            alessandro@restsrv01.polito.it -W %h:%p"

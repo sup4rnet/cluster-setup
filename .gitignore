@@ -1,0 +1,8 @@
+# p4tenant temp files
+.p4tenant-inventory-*
+.p4tenant-backups/
+
+# Python
+__pycache__/
+*.pyc
+.venv/

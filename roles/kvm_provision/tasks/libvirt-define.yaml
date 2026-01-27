@@ -26,7 +26,9 @@
       command: |
         virt-customize -a {{ libvirt_pool_dir }}/{{ base_image_name_no_extension }}-{{ item }}.qcow2 \
         --hostname {{ item }} \
-        --root-password password:{{ vm_root_pass }}
+        --root-password password:{{ vm_root_pass }} \
+        --run-command 'echo "{{ vm_admin_user }} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/{{ vm_admin_user }}' \
+        --run-command 'chmod 440 /etc/sudoers.d/{{ vm_admin_user }}'
 
     - name: write xml template for VM on remote host
       become: true
