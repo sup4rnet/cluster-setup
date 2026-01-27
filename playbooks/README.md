@@ -142,9 +142,11 @@ ansible-playbook playbooks/bootstrap-vms.yaml -i inventory.yaml -K
 
 ### Step 6: Verify
 
-SSH into the new VM:
+SSH into the new VM with proxy jumping through `restsrv01`. 
+
+Use the optional flags `-o StrictHostKeyChecking=no` and `-o UserKnownHostsFile=/dev/null` to prevent SSH host key verification issues.
 ```bash
-ssh -J <your-username>@restsrv01.polito.it jdoe@restvm-jdoe-01
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -J <your-username-on-bastion>@restsrv01.polito.it <vm-username>@restvm-<vm-username>-01
 ```
 
 ---
