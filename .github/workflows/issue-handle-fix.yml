@@ -1,0 +1,76 @@
+name: Claude Issue Fix
+
+on:
+  issues:
+    types: [opened, assigned]
+
+jobs:
+  claude-fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write      # Needed to create branches and commits
+      pull-requests: write # Needed to create PRs
+      issues: write        # Needed to comment on issues
+      id-token: write
+      actions: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better context
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Ansible and dependencies
+        run: |
+          pip install ansible-core==2.18.3
+          # Install any additional Python dependencies if needed
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run Claude Code
+        id: claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+
+          # Trigger only when alessandrocornacchia is assigned to the issue
+          assignee_trigger: "alessandrocornacchia"
+
+          prompt: |
+            You are helping fix an issue in this repository. Issues typically describe bugs, 
+            possible improvements to the documentation or feature requests.
+
+            Issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}
+
+            Issue body:
+            ${{ github.event.issue.body }}
+
+            Instructions:
+            1. Analyze the issue and understand what needs to be fixed
+            2. Explore the codebase to find relevant files
+            3. Make the necessary changes to fix the issue
+            4. Create a new branch named 'fix/issue-${{ github.event.issue.number }}'
+            5. Commit your changes with a descriptive message
+            6. Push the branch and create a PR that references this issue
+            7. The PR description should explain what was changed and why
+
+            If you cannot fix the issue automatically, comment on the issue explaining why.
+
+            DO:
+            - Create a new branch for the fix
+            - Make code changes to fix the issue
+            - Create a PR with a clear description
+            - Comment on the issue if unable to fix
+            DON'T:
+            - Do NOT make changes directly to the main branch
+            - Do NOT create a PR without referencing the issue
+            - Do NOT resolve the issue if the requirement is unclear, ask first instead
+
+          claude_args: |
+            --model claude-opus-4-5-20251101
+
+
