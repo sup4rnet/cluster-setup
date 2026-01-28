@@ -1,11 +1,16 @@
-name: Claude Issue Fix
+name: Claude Code
 
 on:
-  issues:
-    types: [opened, assigned]
+  issue_comment:
+    types: [created]
 
 jobs:
-  claude-fix:
+  claude:
+    # Only run when alessandrocornacchia comments with @claude
+    if: |
+      github.event_name == 'issue_comment' &&
+      contains(github.event.comment.body, '@claude') &&
+      github.event.comment.user.login == 'alessandrocornacchia'
     runs-on: ubuntu-latest
     permissions:
       contents: write      # Needed to create branches and commits
@@ -28,7 +33,6 @@ jobs:
       - name: Install Ansible and dependencies
         run: |
           pip install ansible-core==2.18.3
-          # Install any additional Python dependencies if needed
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run Claude Code
@@ -37,12 +41,9 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
-          # Trigger only when alessandrocornacchia is assigned to the issue
-          assignee_trigger: "alessandrocornacchia"
+          trigger_phrase: "@claude"
 
           prompt: /fix-issue
 
           claude_args: |
             --model claude-opus-4-5-20251101
-
-
