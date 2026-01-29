@@ -21,8 +21,8 @@ jobs:
       - name: Run Claude Code for Issue Triage
         uses: anthropics/claude-code-action@v1
         with:
-          # NOTE: /label-issue here requires a .claude/commands/label-issue.md file in your repo (see this repo's .claude directory for an example)
-          prompt: "/label-issue REPO: ${{ github.repository }} ISSUE_NUMBER${{ github.event.issue.number }}"
+          # The skill auto-detects GitHub Actions context and fetches issue details
+          prompt: "/label-issue"
           claude_args: |
             --model claude-opus-4-5-20251101
           anthropic_api_key: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

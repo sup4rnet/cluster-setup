@@ -1,0 +1,43 @@
+services:
+  ansible-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: p4-restart-ansible:latest
+    container_name: p4-restart-ansible-test
+    volumes:
+      # Mount the entire project directory (parent of docker folder)
+      - ..:/workspace
+      # Mount SSH keys for authentication (read-only)
+      - ${HOME}/.ssh:/root/.ssh:ro
+      # Mount GitHub CLI config for agentize (if exists)
+      - ${HOME}/.config/gh:/root/.config/gh:ro
+      # Mount Claude Code config (RECOMMENDED for authentication)
+      # Uncomment the line below after authenticating Claude on your host
+      # - ${HOME}/.claude:/root/.claude:ro
+      # Preserve Ansible collections and roles
+      - ansible-collections:/root/.ansible
+      # Persist agentize installation
+      - agentize-home:/root/.agentize
+      # Persist Claude Code authentication (if not mounting from host)
+      - claude-config:/root/.claude
+    working_dir: /workspace
+    environment:
+      # Ansible configuration
+      - ANSIBLE_HOST_KEY_CHECKING=False
+      - ANSIBLE_CONFIG=/workspace/ansible.cfg
+      # GitHub token (optional, for agentize)
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      # Anthropic API key (optional, for Claude Code)
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    stdin_open: true
+    tty: true
+    network_mode: host
+
+volumes:
+  ansible-collections:
+    driver: local
+  agentize-home:
+    driver: local
+  claude-config:
+    driver: local
