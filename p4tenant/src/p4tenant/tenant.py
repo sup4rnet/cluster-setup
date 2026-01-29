@@ -353,15 +353,18 @@ class TenantManager:
         all_srv_vms = srv_data.get("vms", [])
         in_vms_list = any(vm in all_srv_vms for vm in user_vms)
 
-        # Aggregate IPs from all user's VMs
+        # Aggregate IPs from all user's VMs (both flat list and grouped by VM)
         ips = []
+        vm_ip_map = {}  # Map of vm_name -> list of IPs
         has_host_vars = False
         for vm_name in user_vms:
             host_vars_path = get_host_vars_path(vm_name)
             if host_vars_path.exists():
                 has_host_vars = True
                 hv_data = load_yaml(host_vars_path)
-                ips.extend(hv_data.get("dataplane_ipv4", []))
+                vm_ips = hv_data.get("dataplane_ipv4", [])
+                ips.extend(vm_ips)
+                vm_ip_map[vm_name] = vm_ips
 
         # Check inventory
         inv_data = load_yaml(INVENTORY_FILE)
@@ -380,6 +383,7 @@ class TenantManager:
             "vm_name": primary_vm,
             "vm_names": user_vms,
             "ips": ips,
+            "vm_ip_map": vm_ip_map,  # Map of vm_name -> list of IPs for proper alignment
             "in_restart_users": in_restart_users,
             "in_vms_list": in_vms_list,
             "in_inventory": in_inventory,
