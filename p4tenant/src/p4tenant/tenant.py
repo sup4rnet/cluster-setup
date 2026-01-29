@@ -245,67 +245,86 @@ class TenantManager:
 
         return changes
 
-    def remove_tenant(self, username: str, dry_run: bool = False) -> list[tuple[str, str]]:
-        """Remove a tenant from all configuration files.
+    def remove_tenant(
+        self,
+        username: str,
+        vm_names: list[str] | None = None,
+        dry_run: bool = False,
+    ) -> list[tuple[str, str]]:
+        """Remove a tenant or specific VMs from all configuration files.
 
         Args:
             username: Username to remove
+            vm_names: Optional list of specific VM names to remove. If None, removes all VMs for the user.
             dry_run: If True, only return changes without applying
 
         Returns:
             List of (file_path, description) for changes made
         """
-        vm_name = get_vm_name(username)
         changes = []
 
-        # 1. Remove from restart_users
-        all_data = load_yaml(GROUP_VARS_ALL)
-        if username in all_data.get("restart_users", []):
-            changes.append(
-                (
-                    "group_vars/all.yaml",
-                    f"Remove '{username}' from restart_users",
-                )
-            )
-            if not dry_run:
-                self._remove_from_restart_users(username)
+        # Get all VMs for this user if specific VMs not provided
+        if vm_names is None:
+            vm_names = self.get_user_vms(username)
+            # Fallback to default VM name if no VMs found
+            if not vm_names:
+                vm_names = [get_vm_name(username, 1)]
 
-        # 2. Remove from restsrv01 vms
-        srv_data = load_yaml(HOST_VARS_RESTSRV01)
-        if vm_name in srv_data.get("vms", []):
-            changes.append(
-                (
-                    "host_vars/restsrv01.yaml",
-                    f"Remove '{vm_name}' from vms list",
-                )
-            )
-            if not dry_run:
-                self._remove_from_restsrv01_vms(vm_name)
+        # Determine if we're removing ALL user's VMs
+        all_user_vms = self.get_user_vms(username)
+        removing_all_vms = set(vm_names) == set(all_user_vms) if all_user_vms else True
 
-        # 3. Delete host_vars file
-        host_vars_path = get_host_vars_path(vm_name)
-        if host_vars_path.exists():
-            changes.append(
-                (
-                    f"host_vars/{vm_name}.yaml",
-                    "[DELETE] Remove host vars file",
+        # 1. Remove from restart_users only if removing ALL VMs
+        if removing_all_vms:
+            all_data = load_yaml(GROUP_VARS_ALL)
+            if username in all_data.get("restart_users", []):
+                changes.append(
+                    (
+                        "group_vars/all.yaml",
+                        f"Remove '{username}' from restart_users",
+                    )
                 )
-            )
-            if not dry_run:
-                self._delete_host_vars(vm_name)
+                if not dry_run:
+                    self._remove_from_restart_users(username)
 
-        # 4. Remove from inventory
-        inv_data = load_yaml(INVENTORY_FILE)
-        vms_hosts = inv_data.get("vms", {}).get("hosts", {})
-        if vm_name in vms_hosts:
-            changes.append(
-                (
-                    "inventory.yaml",
-                    f"Remove '{vm_name}' from vms.hosts",
+        # 2-4. For each VM, remove from vms list, delete host_vars, remove from inventory
+        for vm_name in vm_names:
+            # 2. Remove from restsrv01 vms
+            srv_data = load_yaml(HOST_VARS_RESTSRV01)
+            if vm_name in srv_data.get("vms", []):
+                changes.append(
+                    (
+                        "host_vars/restsrv01.yaml",
+                        f"Remove '{vm_name}' from vms list",
+                    )
                 )
-            )
-            if not dry_run:
-                self._remove_from_inventory(vm_name)
+                if not dry_run:
+                    self._remove_from_restsrv01_vms(vm_name)
+
+            # 3. Delete host_vars file
+            host_vars_path = get_host_vars_path(vm_name)
+            if host_vars_path.exists():
+                changes.append(
+                    (
+                        f"host_vars/{vm_name}.yaml",
+                        "[DELETE] Remove host vars file",
+                    )
+                )
+                if not dry_run:
+                    self._delete_host_vars(vm_name)
+
+            # 4. Remove from inventory
+            inv_data = load_yaml(INVENTORY_FILE)
+            vms_hosts = inv_data.get("vms", {}).get("hosts", {})
+            if vm_name in vms_hosts:
+                changes.append(
+                    (
+                        "inventory.yaml",
+                        f"Remove '{vm_name}' from vms.hosts",
+                    )
+                )
+                if not dry_run:
+                    self._remove_from_inventory(vm_name)
 
         return changes
 

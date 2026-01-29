@@ -782,11 +782,13 @@ def remove(
         print_warning(f"No VMs found matching '{username}' in restsrv01.yaml")
 
     # 2. Show config file changes and ask about updating them
-    config_changes = manager.remove_tenant(username, dry_run=True)
+    config_changes = manager.remove_tenant(username, vm_names=selected_vms, dry_run=True)
     if config_changes:
         # Add admin inventories that will be modified
         for inv_file in BASE_DIR.glob("inventory-*.yaml"):
-            config_changes.append((inv_file.name, f"Remove '{vm_name}' if present"))
+            # Show removal for each selected VM
+            for selected_vm in selected_vms:
+                config_changes.append((inv_file.name, f"Remove '{selected_vm}' if present"))
 
     should_update_config = not skip_config
     if config_changes and not skip_config:
@@ -833,12 +835,13 @@ def remove(
     # Update configuration files
     if should_update_config:
         console.print("[dim]Removing tenant from configuration files...[/dim]")
-        manager.remove_tenant(username, dry_run=False)
+        manager.remove_tenant(username, vm_names=selected_vms, dry_run=False)
 
-        # Remove from admin inventories
-        modified_invs = remove_from_admin_inventories(vm_name)
-        for inv_path in modified_invs:
-            print_success(f"Removed from {inv_path.name}")
+        # Remove from admin inventories (for each selected VM)
+        for selected_vm in selected_vms:
+            modified_invs = remove_from_admin_inventories(selected_vm)
+            for inv_path in modified_invs:
+                print_success(f"Removed from {inv_path.name}")
 
         print_success(f"Configuration files updated for '{username}'")
     else:
