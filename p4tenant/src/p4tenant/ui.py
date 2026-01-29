@@ -89,14 +89,40 @@ def create_tenant_table(tenants: list[dict]) -> Table:
             status_parts.append("[red]\u2717 host[/red]")
 
         status = " ".join(status_parts)
-        ips = "\n".join(tenant.get("ips", []))
 
-        # Show VM names (or count if multiple)
+        # Get VM names and IP mapping
         vm_names = tenant.get("vm_names", [])
+        vm_ip_map = tenant.get("vm_ip_map", {})
+
+        # Build aligned VM and IP displays
         if len(vm_names) <= 1:
+            # Single VM - simple display
             vms_display = tenant.get("vm_name", "")
+            ips = "\n".join(tenant.get("ips", []))
         else:
-            vms_display = "\n".join(vm_names)
+            # Multiple VMs - align IPs with their VMs
+            vm_lines = []
+            ip_lines = []
+
+            for vm_name in vm_names:
+                vm_ips = vm_ip_map.get(vm_name, [])
+
+                if vm_ips:
+                    # First line: VM name and first IP
+                    vm_lines.append(vm_name)
+                    ip_lines.append(vm_ips[0])
+
+                    # Remaining IPs for this VM: blank VM name, show IP
+                    for ip in vm_ips[1:]:
+                        vm_lines.append("")
+                        ip_lines.append(ip)
+                else:
+                    # No IPs for this VM
+                    vm_lines.append(vm_name)
+                    ip_lines.append("")
+
+            vms_display = "\n".join(vm_lines)
+            ips = "\n".join(ip_lines)
 
         table.add_row(
             tenant.get("username", ""),
