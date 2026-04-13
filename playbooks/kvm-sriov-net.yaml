@@ -17,6 +17,16 @@
 - name: Configure SR-IOV on libvirt
   hosts: servers
   become: true
+  tags: [sriov]
+  tasks:
+    - name: Shutdown VMs bound to SR-IOV pools before VF changes
+      community.libvirt.virt:
+        name: "{{ item }}"
+        state: shutdown
+      loop: "{{ sriov | map(attribute='vms') | flatten | unique }}"
+      loop_control:
+        label: "{{ item }}"
+      ignore_errors: true
   roles:
     - ../roles/kvm-sriov
 

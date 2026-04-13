@@ -13,11 +13,19 @@ tofino_rsvp_install_dir: /opt/tofino-rsvp
 sriov:
   - name: sr-iov-net0-100G-E810-C # this pool must be defined using kvm-sriov task
     pf_iface: ens5f0
+    num_vfs: 16
     vms:
       - restsrv01-smartdata01
       - restsrv01-smartdata02
   - name: sr-iov-net1-100G-E810-C
     pf_iface: ens5f1
-    vms:
-      - restsrv01-smartdata01
-      - restsrv01-smartdata02
+    num_vfs: 16
+    vms: []
+
+# Static SR-IOV VF assignment by VM.
+# Keys are PF names and values are VF indices under /sys/class/net/<PF>/device/virtfn<idx>.
+sriov_vf_allocation:
+  restsrv01-smartdata01:
+    ens5f1: [0, 1, 2, 3, 4, 5, 6, 7]
+  restsrv01-smartdata02:
+    ens5f1: [8, 9]

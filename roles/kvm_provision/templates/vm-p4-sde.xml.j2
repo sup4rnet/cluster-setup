@@ -164,7 +164,18 @@
             <source network="{{ s.name }}">
             </source>
           </interface>
-        {% endif %}  
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+    {% if vm_sriov_hostdev_pci is defined %}
+      {% for pci in vm_sriov_hostdev_pci %}
+        {% set pci_parts = pci.split(':') %}
+        {% set slot_parts = pci_parts[2].split('.') %}
+        <interface type='hostdev' managed='yes'>
+          <source>
+            <address type='pci' domain='0x{{ pci_parts[0] }}' bus='0x{{ pci_parts[1] }}' slot='0x{{ slot_parts[0] }}' function='0x{{ slot_parts[1] }}'/>
+          </source>
+        </interface>
       {% endfor %}
     {% endif %}
     <serial type='pty'>

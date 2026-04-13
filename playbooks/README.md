@@ -171,6 +171,56 @@ ansible-playbook playbooks/adduser.yaml -i inventory.yaml --tags srvuseradd -K
 
 ---
 
+## SR-IOV Reconfiguration (kvm-sriov-net.yaml)
+
+Use `kvm-sriov-net.yaml` to reconfigure SR-IOV VF counts and VM PCI passthrough mappings on `restsrv01`.
+
+### Host variables used
+
+Edit `host_vars/restsrv01.yaml`:
+
+- `sriov`: defines SR-IOV libvirt network pools and target `num_vfs` per PF
+- `sriov_vf_allocation`: static VF assignment by VM and PF (VF index list under `/sys/class/net/<pf>/device/virtfn<idx>`)
+
+Example:
+```yaml
+sriov:
+  - name: sr-iov-net0-100G-E810-C
+    pf_iface: ens5f0
+    num_vfs: 16
+    vms:
+      - restsrv01-smartdata01
+      - restsrv01-smartdata02
+  - name: sr-iov-net1-100G-E810-C
+    pf_iface: ens5f1
+    num_vfs: 16
+    vms: []
+
+sriov_vf_allocation:
+  restsrv01-smartdata01:
+    ens5f1: [0, 1, 2, 3, 4, 5, 6, 7]
+  restsrv01-smartdata02:
+    ens5f1: [8, 9]
+```
+
+### Apply in two stages
+
+```bash
+# 1) Reconfigure host SR-IOV (shutdown mapped VMs, set num_vfs, define pools)
+ansible-playbook -i inventory-zhihaow.yaml playbooks/kvm-sriov-net.yaml --limit restsrv01 --tags sriov -K
+
+# 2) Re-define/start only selected VMs to apply new PCI mapping
+ansible-playbook -i inventory-zhihaow.yaml playbooks/kvm-sriov-net.yaml --limit restsrv01 --tags vms -K \
+  -e 'vms=["restsrv01-smartdata01","restsrv01-smartdata02"]'
+```
+
+Notes:
+- Do not use `--check` for actual changes.
+- `--tags vms` only updates VM definitions; SR-IOV host-side changes are in `--tags sriov`.
+- The netplan role now skips hosts that do not have a matching netplan template group.
+
+---
+
 ## Removing a Tenant
 
 This section describes how to remove a tenant manually. For automated removal, use `./p4tenant-cli remove`.

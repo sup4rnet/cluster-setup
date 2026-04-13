@@ -1,8 +1,8 @@
 - name: Configure netplan static IP
   ansible.builtin.template:
-    # we use group names as we have two folders under this roles:
-    # one for tofino switches and one for VMS
-    src: "{{ group_names[0] }}/01-netcfg.yaml.j2"
+    # Use the first group that has a dedicated netplan template.
+    src: "{{ (group_names | intersect(['vms', 'p4switches']) | first) }}/01-netcfg.yaml.j2"
     dest: /etc/netplan/01-netcfg.yaml
+  when: (group_names | intersect(['vms', 'p4switches']) | length) > 0
   notify:
     - Apply netplan (run manually on the VM if not triggered)  

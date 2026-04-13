@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # Create VFs for the specified PF
 #make sure we are root
@@ -14,22 +15,35 @@ fi
     
 echo "Getting number of VFs for {{ item.pf_iface }} ..."
 NUM_VFS=$(cat /sys/class/net/{{ item.pf_iface }}/device/sriov_numvfs | tr -d '\n')
-AVAIL_VFS=$(ip a | grep "{{ item.pf_iface }}v.*" | wc -l | tr -d '\n')
+TARGET_VFS={{ item.num_vfs | default(4) }}
+TMPFILES_LINE="w /sys/class/net/{{ item.pf_iface }}/device/sriov_numvfs - - - - $TARGET_VFS"
 
-# last VF is used for bridge
-if (( $AVAIL_VFS == 1 )) ; then
-    
-    NEW_NUM_VFS=$(( NUM_VFS * 2 ))
-    echo "Creating $NEW_NUM_VFS VFs for {{ item.pf_iface }}..."
-    echo $NEW_NUM_VFS > /sys/class/net/{{ item.pf_iface }}/device/sriov_numvfs
-    # make change persistent after reboot
-    echo "w /sys/class/net/{{ item.pf_iface }}/device/sriov_numvfs - - - - $NEW_NUM_VFS" >> /etc/tmpfiles.d/sriov.conf
+# Configure the exact requested number of VFs for this PF.
+if (( NUM_VFS != TARGET_VFS )) ; then
+    echo "Setting {{ item.pf_iface }} VFs: $NUM_VFS -> $TARGET_VFS"
+
+    # Some drivers require disabling VFs first before changing count.
+    if (( NUM_VFS != 0 )); then
+        echo "0" > /sys/class/net/{{ item.pf_iface }}/device/sriov_numvfs
+    fi
+    echo "$TARGET_VFS" > /sys/class/net/{{ item.pf_iface }}/device/sriov_numvfs
+
+    NEW_NUM_VFS=$(cat /sys/class/net/{{ item.pf_iface }}/device/sriov_numvfs | tr -d '\n')
+    if (( NEW_NUM_VFS != TARGET_VFS )); then
+        echo "ERROR: failed to set {{ item.pf_iface }} VFs to $TARGET_VFS, current is $NEW_NUM_VFS" >&2
+        exit 1
+    fi
 
 else
-    
-    echo "VFs already created for {{ item.pf_iface }}..."
+    echo "VFs already set for {{ item.pf_iface }}: $NUM_VFS"
 
 fi
+
+# Make change persistent after reboot (idempotent update by PF path).
+if [ -f /etc/tmpfiles.d/sriov.conf ]; then
+    sed -i "\|/sys/class/net/{{ item.pf_iface }}/device/sriov_numvfs|d" /etc/tmpfiles.d/sriov.conf
+fi
+echo "$TMPFILES_LINE" >> /etc/tmpfiles.d/sriov.conf
     
 # print the VFs available and return value of created VFs
 lspci | grep net

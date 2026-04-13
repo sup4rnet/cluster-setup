@@ -30,6 +30,18 @@
         --run-command 'echo "{{ vm_admin_user }} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/{{ vm_admin_user }}' \
         --run-command 'chmod 440 /etc/sudoers.d/{{ vm_admin_user }}'
 
+    - name: Resolve SR-IOV VF PCI addresses for VM
+      command: "readlink -f /sys/class/net/{{ vf_pair.0.key }}/device/virtfn{{ vf_pair.1 }}"
+      loop: "{{ (sriov_vf_allocation[item] | default({}) | dict2items) | subelements('value') }}"
+      loop_control:
+        loop_var: vf_pair
+      register: vm_sriov_vf_paths
+      changed_when: false
+
+    - name: Build SR-IOV VF PCI list for VM
+      set_fact:
+        vm_sriov_hostdev_pci: "{{ vm_sriov_vf_paths.results | map(attribute='stdout') | map('basename') | list }}"
+
     - name: write xml template for VM on remote host
       become: true
       template:

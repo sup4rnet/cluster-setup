@@ -14,6 +14,8 @@
 
 - name: Create SR-IOV devices on host
   shell: "{{ lookup('template', 'create_vfs.sh.j2') }}"
+  args:
+    executable: /bin/bash
   with_items: "{{ sriov }}"
 
 - name: Define a SR-IOV network pools
