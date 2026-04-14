@@ -221,6 +221,45 @@ Notes:
 
 ---
 
+## VM vCPU and memory
+
+Default sizing for new libvirt domains comes from `roles/kvm_provision/defaults/main.yaml` (`vm_vcpus`, `vm_ram_mb`). To give one VM different resources, set overrides on **that VM’s inventory hostname** in `host_vars/<vm-hostname>.yaml` (per-VM overrides):
+
+```yaml
+vm_vcpus: 32
+vm_ram_mb: 32768   # MiB (e.g. 32768 = 32 GiB)
+```
+
+The domain template `roles/kvm_provision/templates/vm-p4-sde.xml.j2` resolves these from `hostvars[item]` when the KVM play runs on `restsrv01`, so **the VM must appear under `vms.hosts` in the inventory file you pass to `ansible-playbook`** (otherwise Ansible has no host_vars for that name).
+
+Changing YAML alone does not update an already-defined domain. To push new CPU/RAM into libvirt (the role may shut down the VM first):
+
+```bash
+ansible-playbook playbooks/kvm-bridged-net.yaml -i inventory.yaml -K \
+  -e reconfigure_running_vms=true
+```
+
+To touch only selected VMs (and not every name in `host_vars/restsrv01.yaml`’s `vms` list), override the list for that run:
+
+```bash
+ansible-playbook playbooks/kvm-bridged-net.yaml -i inventory.yaml -K \
+  -e reconfigure_running_vms=true \
+  -e '{"vms":["restsrv01-smartdata01"]}'
+```
+
+Alternatively, run the KVM stage from full onboarding with the same extra vars:
+
+```bash
+ansible-playbook playbooks/adduser.yaml -i inventory.yaml -K \
+  --tags kvmconf \
+  -e reconfigure_running_vms=true \
+  -e '{"vms":["restsrv01-smartdata01"]}'
+```
+
+On `restsrv01`, verify with `virsh dominfo <vm-hostname>`.
+
+---
+
 ## Removing a Tenant
 
 This section describes how to remove a tenant manually. For automated removal, use `./p4tenant-cli remove`.

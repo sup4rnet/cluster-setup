@@ -40,7 +40,7 @@ VMs are provisioned with Intel P4 Software Development Environment (version 9.13
 ## Ansible playbooks
 VM creation and account provisioning on all the machines is automated via our set of Ansible playbooks. 
 
-Admin users can follow the [playbook documentation](./playbooks/README.md).
+Admin users can follow the [playbook documentation](./playbooks/README.md), including [per-VM vCPU and RAM](./playbooks/README.md#vm-vcpu-and-memory).
 
 ## User access to VM
 

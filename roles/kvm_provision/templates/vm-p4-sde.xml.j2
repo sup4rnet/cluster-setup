@@ -5,8 +5,8 @@
       <libosinfo:os id="http://ubuntu.com/ubuntu/20.04"/>
     </libosinfo:libosinfo>
   </metadata>
-  <memory unit='MiB'>{{ vm_ram_mb }}</memory>
-  <vcpu placement='static'>{{ vm_vcpus }}</vcpu>
+  <memory unit='MiB'>{{ hostvars[item].vm_ram_mb | default(vm_ram_mb) }}</memory>
+  <vcpu placement='static'>{{ hostvars[item].vm_vcpus | default(vm_vcpus) }}</vcpu>
   <resource>
     <partition>/machine</partition>
   </resource>

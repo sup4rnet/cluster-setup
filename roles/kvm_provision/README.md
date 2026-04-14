@@ -19,6 +19,10 @@ The VMs must be reachable on the DATAPLANE network `10.10.0.0/24`. We connect ne
 
 A base VM image (qcow2 file) with default account `p4-restart` and Intel P4 Studio environment configured is available under `/var/lib/libvirt/images/ubuntu20.04-p4-sde.qcow2`.
 
+### VM vCPU and RAM
+
+Defaults are `vm_vcpus` and `vm_ram_mb` in this role’s `defaults/main.yaml`. Per-tenant overrides belong in `host_vars/<vm-hostname>.yaml` (same name as in inventory). Applying changes to an existing domain requires re-defining it with `reconfigure_running_vms=true`; see [VM vCPU and memory](../../playbooks/README.md#vm-vcpu-and-memory) in the playbooks README.
+
 ### Ansible variables for network setup
 At the very minimum, prior to running the Ansible roles on a new server, one should edit the following variables (see an example in `group_vars/servers.yaml`).
 
