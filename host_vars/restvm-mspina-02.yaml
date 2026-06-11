@@ -1,7 +1,0 @@
-dataplane_ipv4:
-  - 10.10.0.23/24
-  - 10.10.0.24/24
-  
-# NOTE: this must be a list (even with single entry) or it will fail
-host_users:
-  - mspina
